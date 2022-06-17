@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "878548360579",
+    "firebase_url": "https://cebuapp-350209-default-rtdb.firebaseio.com",
+    "project_id": "cebuapp-350209",
+    "storage_bucket": "cebuapp-350209.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:878548360579:android:06aa53e743837d5eaaeab6",
+        "android_client_info": {
+          "package_name": "com.example.cebuapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "878548360579-eipdm0pkjrcnks5bel5l526cl27bs9qr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBujk5u08fRir8rd1b_1WOq0-AbfrtjREo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "878548360579-eipdm0pkjrcnks5bel5l526cl27bs9qr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:878548360579:android:3e608cd4d519641eaaeab6",
+        "android_client_info": {
+          "package_name": "com.example.firebase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "878548360579-eipdm0pkjrcnks5bel5l526cl27bs9qr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBujk5u08fRir8rd1b_1WOq0-AbfrtjREo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "878548360579-eipdm0pkjrcnks5bel5l526cl27bs9qr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

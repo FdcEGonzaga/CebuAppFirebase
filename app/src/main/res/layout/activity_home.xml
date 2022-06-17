@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".controllers.HomeActivity">
+
+    <!--  normal user ui-->
+    <LinearLayout
+        android:id="@+id/normal_user_ui"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingBottom="20dp"
+        android:visibility="visible"
+        android:background="@drawable/sinulogbg2"
+        android:orientation="vertical">
+
+        <!-- User homepage header-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="30dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:elevation="10dp"
+            android:weightSum="3">
+
+            <TextView
+                android:id="@+id/user_greeting"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="Hi, User!"
+                android:textColor="@color/whiter"
+                android:layout_marginTop="30dp"
+                android:textStyle="bold"
+                android:textSize="13sp"
+                android:layout_weight="1"
+                />
+
+            <ImageView
+                android:id="@+id/user_home_img"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:src="@drawable/logo"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                />
+
+            <TextView
+                android:id="@+id/user_logout"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="Logout"
+                android:textColor="@color/whiter"
+                android:textStyle="bold"
+                android:layout_marginTop="30dp"
+                android:gravity="right"
+                android:textSize="13sp"
+                android:layout_weight="1"
+                />
+        </LinearLayout>
+
+        <!-- User homepage text-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Know local news, jobs, food areas and tourist spots with convenience."
+            android:textStyle="bold"
+            android:textColor="@color/blue"
+            android:padding="20dp"
+            android:layout_marginTop="-25dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/custom_bg_rounded_white"
+            android:textSize="18sp" />
+
+        <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardNews"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="15dp"
+                    app:cardBackgroundColor="@color/white"
+                    android:layout_margin="20dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/lightBlue"
+                        android:text="Latest News"
+                        android:textStyle="bold"
+                        android:paddingTop="5dp"
+                        android:gravity="center"
+                        />
+
+                    <ImageButton
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:background="@drawable/newspaper"
+                        android:tooltipText="Latest News"
+                        android:layout_marginTop="25dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:layout_marginBottom="10dp"/>
+
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardJobs"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="15dp"
+                    app:cardBackgroundColor="@color/white"
+                    android:layout_margin="20dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/lightBlue"
+                        android:text="Job Postings"
+                        android:textStyle="bold"
+                        android:paddingTop="5dp"
+                        android:gravity="center"
+                        />
+
+                    <ImageButton
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:background="@drawable/worker"
+                        android:tooltipText="Job Postings"
+                        android:layout_marginTop="25dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:layout_marginBottom="10dp"/>
+
+                </androidx.cardview.widget.CardView>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardFoods"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="15dp"
+                    app:cardBackgroundColor="@color/white"
+                    android:layout_margin="20dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/lightBlue"
+                        android:text="Food Areas"
+                        android:textStyle="bold"
+                        android:paddingTop="5dp"
+                        android:gravity="center"
+                        />
+
+                    <ImageButton
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:background="@drawable/fastfood"
+                        android:tooltipText="Food Areas"
+                        android:layout_marginTop="25dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:layout_marginBottom="10dp"/>
+
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardSpots"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="15dp"
+                    app:cardBackgroundColor="@color/white"
+                    android:layout_margin="20dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/lightBlue"
+                        android:text="Tourist Spots"
+                        android:textStyle="bold"
+                        android:paddingTop="5dp"
+                        android:gravity="center"
+                        />
+
+                    <ImageButton
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:background="@drawable/spots"
+                        android:tooltipText="Tourist Spots"
+                        android:layout_marginTop="25dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:layout_marginBottom="10dp"/>
+
+                </androidx.cardview.widget.CardView>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardMap"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="15dp"
+                    app:cardBackgroundColor="@color/white"
+                    android:layout_margin="20dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:paddingTop="5dp"
+                        android:text="Nearby Places"
+                        android:textColor="@color/lightBlue"
+                        android:textStyle="bold" />
+
+                    <ImageButton
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:layout_marginTop="25dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:background="@drawable/map"
+                        android:layout_gravity="center"
+                        android:tooltipText="Check Nearby Places" />
+
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardAccount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="15dp"
+                    app:cardBackgroundColor="@color/white"
+                    android:layout_margin="20dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/lightBlue"
+                        android:text="Account"
+                        android:textStyle="bold"
+                        android:paddingTop="5dp"
+                        android:gravity="center"
+                        />
+
+                    <ImageButton
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:layout_marginTop="25dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:background="@drawable/user"
+                        android:layout_gravity="center"
+                        android:tooltipText="Account Settings"/>
+
+                </androidx.cardview.widget.CardView>
+
+            </LinearLayout>
+
+
+
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    </LinearLayout>
+
+    <!--  admin user ui-->
+    <LinearLayout
+        android:id="@+id/admin_user_ui"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingBottom="20dp"
+        android:orientation="vertical"
+        android:background="@drawable/sinulogbg"
+        android:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="30dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:elevation="10dp"
+            android:weightSum="3">
+
+            <TextView
+                android:id="@+id/admin_greeting"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="Hello, Admin!"
+                android:textColor="@color/whiter"
+                android:layout_marginTop="30dp"
+                android:textStyle="bold"
+                android:textSize="13sp"
+                android:layout_weight="1"
+                />
+
+            <ImageView
+                android:id="@+id/admin_home_img"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:src="@drawable/logo"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                />
+
+            <TextView
+                android:id="@+id/admin_logout"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="Logout"
+                android:textColor="@color/whiter"
+                android:textStyle="bold"
+                android:layout_marginTop="30dp"
+                android:gravity="right"
+                android:textSize="13sp"
+                android:layout_weight="1"
+                />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="ADMINISTRATOR\nMANAGEMENT"
+            android:textColor="@color/blue"
+            android:textStyle="bold"
+            android:textSize="25sp"
+            android:padding="20dp"
+            android:layout_marginTop="-25dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/custom_bg_rounded_white"/>
+
+        <Button
+            android:id="@+id/manage_provinces"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/custom_btn_rounded"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="20dp"
+            android:text="Manage Provinces" />
+
+        <Button
+            android:id="@+id/manage_jobs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/custom_btn_rounded"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:text="Manage Jobs" />
+
+        <!--  manage jobs options -->
+        <LinearLayout
+            android:id="@+id/manage_jobs_dropdown"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:padding="20dp"
+            android:background="@drawable/custom_bg_opacity_top"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/manage_job_fields"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/custom_btn_rounded"
+                android:text="Job Fields"
+                android:layout_marginBottom="20dp"/>
+
+            <Button
+                android:id="@+id/manage_job_posts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/custom_btn_rounded"
+                android:text="Job Postings"
+                android:layout_marginBottom="5dp"/>
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/manage_food_areas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/custom_btn_rounded"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="20dp"
+            android:text="Manage Food Areas" />
+
+        <Button
+            android:id="@+id/manage_tourist_spots"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/custom_btn_rounded"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="20dp"
+            android:text="Manage Tourist Spots" />
+
+        <Button
+            android:id="@+id/manage_admins"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/custom_btn_rounded"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="20dp"
+            android:text="Manage Admins" />
+
+    </LinearLayout>
+
+</LinearLayout>

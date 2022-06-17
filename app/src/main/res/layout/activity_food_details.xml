@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@drawable/sinulogbg2"
+    tools:context=".controllers.User.LatestNews.NewsDetailsActivity">
+
+    <ImageButton
+        android:id="@+id/back_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_back_arrow"
+        android:background="@drawable/custom_bg_rounded_white"
+        android:padding="10dp"
+        android:layout_marginBottom="10dp"
+        android:tooltipText="Go Back"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:elevation="10dp"
+            app:cardCornerRadius="25dp"
+            app:cardBackgroundColor="@color/white"
+            android:layout_marginBottom="10dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <ImageView
+                    android:id="@+id/detailImg"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:src="@drawable/foods_800x500"
+                    android:layout_marginBottom="10dp"
+                    android:layout_gravity="center"/>
+
+                <TextView
+                    android:id="@+id/detailTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="FOOD AREA NAME"
+                    android:textColor="@color/darkBlue"
+                    android:textSize="25dp"
+                    android:textStyle="bold"
+                    android:gravity="center|left"/>
+
+                <TextView
+                    android:id="@+id/detailLandmark"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/blue"
+                    android:text="LANDMARK OF THE PLACE"
+                    android:textSize="16sp"
+                    android:gravity="center|left"/>
+
+                <TextView
+                    android:id="@+id/detailProvince"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/blue"
+                    android:text="PROVINCE"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="10dp"
+                    android:gravity="center|left"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="ABOUT THE FOOD AREA"
+                    android:textSize="10sp"
+                    android:textColor="@color/darkBlue"
+                    android:layout_gravity="center|left"/>
+
+                <TextView
+                    android:id="@+id/detailDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/news_sample_text"
+                    android:textColor="@color/blue"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="10dp"/>
+
+                <!-- Contact Num and Email -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="CONTACTS"
+                    android:textSize="10sp"
+                    android:textColor="@color/darkBlue"
+                    android:layout_gravity="center|left"/>
+                <TextView
+                    android:id="@+id/detailContact"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/blue"
+                    android:text="elmer@gmail.com"
+                    android:textSize="13sp"
+                    android:gravity="center|left"/>
+                <TextView
+                    android:id="@+id/detailEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/blue"
+                    android:text="09322222222"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="10dp"
+                    android:gravity="center|left"/>
+
+                <!-- Date posted -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="DATE POSTED"
+                    android:textSize="10sp"
+                    android:textColor="@color/darkBlue"
+                    android:layout_gravity="center|left"/>
+                <TextView
+                    android:id="@+id/detailDatePosted"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/blue"
+                    android:text="MAY 18, 2022"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="10dp"
+                    android:gravity="center|left"/>
+
+                <!-- Line break -->
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="2dp"
+                    android:background="@color/lightBlue"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/blue"
+                    android:text="Do you want to inquire or reserve?"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="10dp"
+                    android:gravity="center"/>
+
+                <!-- Buttons -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:weightSum="2">
+
+                    <Button
+                        android:id="@+id/callBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="CALL"
+                        android:textSize="13sp"
+                        android:gravity="center"
+                        android:background="@drawable/custom_btn_rounded2"
+                        android:padding="10dp"
+                        android:layout_margin="5dp"
+                        android:textColor="@color/darkBlue"
+                        android:layout_weight="1"
+                        android:layout_gravity="center"/>
+
+                    <Button
+                        android:id="@+id/emailBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="EMAIL"
+                        android:textSize="13sp"
+                        android:gravity="center"
+                        android:background="@drawable/custom_btn_rounded2"
+                        android:padding="10dp"
+                        android:layout_margin="5dp"
+                        android:textColor="@color/darkBlue"
+                        android:layout_weight="1"
+                        android:layout_gravity="center"/>
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+    </ScrollView>
+
+</LinearLayout>

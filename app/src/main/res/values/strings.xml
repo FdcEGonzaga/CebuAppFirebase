@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">CebuApp</string>
+    <string name="prompt_search">Search text here...</string>
+    <string name="prompt_full_name">Full Name</string>
+    <string name="prompt_email">sample@gmail.com</string>
+    <string name="prompt_phone">09123123123</string>
+    <string name="prompt_credit_card">123412341234</string>
+    <string name="prompt_password">************</string>
+    <string name="logout_txt">Log out</string>
+    <string name="login_txt">Log in</string>
+    <string name="signup_txt">SIGN UP</string>
+    <string name="register_txt">Register</string>
+    <string name="news_api_key" translatable="false">7364827e805342f7b4cabfa15f091743</string>
+    <string name="news_sample_text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. </string>
+    <string name="splash_news_description">Stay updated with the latest news and events whenever want!</string>
+    <string name="splash_jobs_description">Find the fittest job for you with just a click of your fingertips!</string>
+    <string name="dash_txt_separator">- - - - - - - - - - - - -</string>
+    <string name="back_txt">BACK</string>
+    <string name="next_txt">NEXT</string>
+    <string name="title_activity_jobs">JobsActivity</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+    <string name="title_activity_spots">SpotsActivity</string>
+    <string name="splash_tourist_descpription">Be guided with the new spots in Cebu that\'s instagrammable.</string>
+    <string name="splash_food_description">Find the nearest food areas around your location</string>
+    <string name="search_location_txt">Search a location here...</string>
+    <string name="google_map_key">AIzaSyBujk5u08fRir8rd1b_1WOq0-AbfrtjREo</string>
+    <string name="change_pass">Reset Password</string>
+    <string name="default_info_title">Default Title</string>
+    <string name="default_info_snippet">Default snippet</string>
+    <string name="pick_place">Pick a place</string>
+    <string name="splash_maps_descpription">Get the latest nearby places to visit on your current location</string>
+</resources>

@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@drawable/sinulogbg"
+    tools:context=".controllers.HomeActivity">
+
+    <!--  Logo and title  -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:src="@drawable/logo"
+            android:layout_marginBottom="-30dp"
+            android:layout_gravity="center"
+            android:elevation="1dp"/>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/custom_bg_rounded_white"
+            android:orientation="horizontal"
+            android:weightSum="3">
+
+            <ImageButton
+                android:id="@+id/back_btn"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:tooltipText="Go to home"
+                android:background="@color/white"
+                android:paddingLeft="20dp"
+                android:src="@drawable/ic_back_arrow"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:id="@+id/management_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:paddingTop="30dp"
+                android:paddingBottom="20dp"
+                android:gravity="center"
+                android:text="JOB FIELDS\nMANAGEMENT"
+                android:textColor="@color/darkBlue"
+                android:textStyle="bold"
+                android:layout_weight="1"
+                android:textSize="26sp" />
+
+            <ImageButton
+                android:id="@+id/add_new_btn"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:tooltipText="Go to home"
+                android:background="@color/white"
+                android:src="@drawable/ic_add"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Form -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/add_edit_form"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/custom_bg_rounded_white"
+            android:padding="20dp"
+            android:layout_marginBottom="20dp"
+            android:visibility="gone"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/jf_title_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Add a Job Field Title:"
+                android:textColor="@color/blue"
+                android:textSize="16sp"
+                android:layout_marginBottom="10dp"/>
+
+            <EditText
+                android:id="@+id/jf_title_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:hint="Job Field Title"
+                android:textColorHint="@color/lightBlue"
+                android:textColor="@color/darkBlue"
+                android:textSize="13sp"
+                android:paddingLeft="15dp"
+                android:paddingRight="10dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:background="@drawable/custom_input_field"
+                android:layout_marginBottom="20dp"
+                android:singleLine="true"
+                />
+
+            <Button
+                android:id="@+id/jf_action_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="ADD"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:padding="5dp"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/custom_btn_rounded2"
+                android:layout_marginBottom="10dp"
+                />
+
+            <Button
+                android:id="@+id/cancel_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="CANCEL"
+                android:textColor="@color/blue"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:padding="5dp"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/custom_btn_rounded2"
+                android:layout_marginBottom="5dp"
+                />
+        </LinearLayout>
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/jf_swipe_refresh_layout"
+            android:layout_width="match_parent"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_height="wrap_content">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/jf_rv"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            </androidx.recyclerview.widget.RecyclerView>
+
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+        <TextView
+            android:id="@+id/jf_is_empty_list"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:background="@drawable/custom_bg_rounded_white"
+            android:padding="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:textSize="16dp"
+            android:gravity="center"
+            android:textColor="@color/blue"
+            android:text="There's no province name to display."
+            android:visibility="gone"/>
+
+    </LinearLayout>
+
+
+</LinearLayout>

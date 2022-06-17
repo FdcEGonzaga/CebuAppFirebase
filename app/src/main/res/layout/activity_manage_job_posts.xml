@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp"
+    android:orientation="vertical"
+    android:background="@drawable/sinulogbg"
+    tools:context=".controllers.HomeActivity">
+
+    <!--  Logo and title  -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:src="@drawable/logo"
+            android:layout_marginBottom="-30dp"
+            android:layout_gravity="center"
+            android:elevation="1dp"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/custom_bg_rounded_white"
+            android:orientation="horizontal"
+            android:weightSum="3">
+
+            <ImageButton
+                android:id="@+id/back_btn"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:tooltipText="Go to home"
+                android:background="@color/white"
+                android:paddingLeft="20dp"
+                android:src="@drawable/ic_back_arrow"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:id="@+id/management_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:paddingTop="30dp"
+                android:paddingBottom="20dp"
+                android:gravity="center"
+                android:text="JOB POSTS\nMANAGEMENT"
+                android:textColor="@color/darkBlue"
+                android:textStyle="bold"
+                android:layout_weight="1"
+                android:textSize="26sp" />
+
+            <ImageButton
+                android:id="@+id/add_new_btn"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:tooltipText="Go to home"
+                android:background="@color/white"
+                android:src="@drawable/ic_add"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Add/Edit Form Scroll-->
+    <ScrollView
+        android:id="@+id/add_edit_form"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/custom_bg_rounded_white"
+            android:padding="20dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/form_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Addding a Job Post"
+                android:textColor="@color/darkBlue"
+                android:textSize="20sp"
+                android:layout_marginBottom="20dp"
+                android:textStyle="bold"/>
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="2dp"
+                android:background="@color/lightBlue"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- Job Title -->
+            <TextView
+                android:id="@+id/jp_title_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Title:"
+                android:textColor="@color/darkBlue"
+                android:textSize="13sp"
+                android:layout_marginBottom="10dp"/>
+            <EditText
+                android:id="@+id/jp_title_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:hint="Edit job post title here..."
+                android:textColorHint="@color/lightBlue"
+                android:textColor="@color/darkBlue"
+                android:textSize="13sp"
+                android:paddingLeft="15dp"
+                android:paddingRight="10dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:background="@drawable/custom_input_field"
+                android:layout_marginBottom="20dp"
+                android:singleLine="true"
+                />
+            <!-- Job Desc -->
+            <TextView
+                android:id="@+id/jp_desc_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Description:"
+                android:textColor="@color/darkBlue"
+                android:textSize="13sp"
+                android:layout_marginBottom="10dp"/>
+            <EditText
+                android:id="@+id/jp_desc_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine"
+                android:hint="Edit job post description here..."
+                android:lines="5"
+                android:minLines="5"
+                android:maxLines="5"
+                android:gravity="top|start"
+                android:scrollbars="vertical"
+                android:textColorHint="@color/lightBlue"
+                android:textColor="@color/darkBlue"
+                android:textSize="13sp"
+                android:padding="15dp"
+                android:background="@drawable/custom_input_field"
+                android:layout_marginBottom="20dp"
+                />
+
+            <!-- Job Exp (experience needed) -->
+            <TextView
+                android:id="@+id/jp_exp_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Years of experience needed:"
+                android:textColor="@color/darkBlue"
+                android:textSize="13sp"
+                android:layout_marginBottom="10dp"/>
+            <EditText
+                android:id="@+id/jp_exp_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:hint="1"
+                android:textColorHint="@color/lightBlue"
+                android:textColor="@color/darkBlue"
+                android:textSize="13sp"
+                android:paddingLeft="15dp"
+                android:paddingRight="10dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:background="@drawable/custom_input_field"
+                android:layout_marginBottom="20dp"
+                android:singleLine="true"
+                />
+            <!-- Job Salary -->
+            <TextView
+                android:id="@+id/jp_salary_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Salary:"
+                android:textColor="@color/darkBlue"
+                android:textSize="13sp"
+                android:layout_marginBottom="10dp"/>
+            <EditText
+                android:id="@+id/jp_salary_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:hint="20,000"
+                android:textColorHint="@color/lightBlue"
+                android:textColor="@color/darkBlue"
+                android:textSize="13sp"
+                android:paddingLeft="15dp"
+                android:paddingRight="10dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:background="@drawable/custom_input_field"
+                android:layout_marginBottom="20dp"
+                android:singleLine="true"
+                />
+            <!-- Job Post Link -->
+            <TextView
+                android:id="@+id/jp_link_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Job Post Link:"
+                android:textColor="@color/darkBlue"
+                android:textSize="13sp"
+                android:layout_marginBottom="10dp"/>
+            <EditText
+                android:id="@+id/jp_link_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:hint="https://www.mynimo.com/cebu-jobs"
+                android:textColorHint="@color/lightBlue"
+                android:textColor="@color/darkBlue"
+                android:textSize="13sp"
+                android:paddingLeft="15dp"
+                android:paddingRight="10dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:background="@drawable/custom_input_field"
+                android:layout_marginBottom="20dp"
+                android:singleLine="true"
+                />
+            <!-- Job Company -->
+            <TextView
+                android:id="@+id/jp_company_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Company:"
+                android:textColor="@color/darkBlue"
+                android:textSize="13sp"
+                android:layout_marginBottom="10dp"/>
+            <EditText
+                android:id="@+id/jp_company_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:hint="Edit company name here..."
+                android:textColorHint="@color/lightBlue"
+                android:textColor="@color/darkBlue"
+                android:textSize="13sp"
+                android:paddingLeft="15dp"
+                android:paddingRight="10dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:background="@drawable/custom_input_field"
+                android:layout_marginBottom="20dp"
+                android:singleLine="true"
+                />
+            <!-- Job Company dets-->
+            <TextView
+                android:id="@+id/jp_company_dets_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Company Details:"
+                android:textColor="@color/darkBlue"
+                android:textSize="13sp"
+                android:layout_marginBottom="10dp"/>
+            <EditText
+                android:id="@+id/jp_company_dets_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:hint="Edit company details here..."
+                android:textColorHint="@color/lightBlue"
+                android:textColor="@color/darkBlue"
+                android:textSize="13sp"
+                android:paddingLeft="15dp"
+                android:paddingRight="10dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:background="@drawable/custom_input_field"
+                android:layout_marginBottom="20dp"
+                android:singleLine="true"
+                />
+            <!-- Job type/field -->
+            <TextView
+                android:id="@+id/jp_field_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Field/Type:"
+                android:textColor="@color/darkBlue"
+                android:textSize="13sp"
+                android:layout_marginBottom="10dp"/>
+            <Spinner
+                android:id="@+id/jp_field_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:layout_marginBottom="20dp"
+                android:textAlignment="center"
+                android:background="@drawable/custom_input_field"/>
+            <!-- Job Address -->
+            <TextView
+                android:id="@+id/jp_address_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Province:"
+                android:textColor="@color/darkBlue"
+                android:textSize="13sp"
+                android:layout_marginBottom="10dp"/>
+            <Spinner
+                android:id="@+id/jp_address_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/custom_input_field"
+                android:textAlignment="center" />
+
+            <!-- Add btn -->
+            <Button
+                android:id="@+id/jp_action_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="ADD"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:textSize="13sp"
+                android:padding="5dp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/custom_btn_rounded2"
+                />
+
+            <Button
+                android:id="@+id/cancel_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="CANCEL"
+                android:textColor="@color/blue"
+                android:textStyle="bold"
+                android:textSize="13sp"
+                android:padding="5dp"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/custom_btn_rounded2"
+                android:layout_marginBottom="5dp"
+                />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- rv of posts -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/jp_swipe_refresh_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/jp_rv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        </androidx.recyclerview.widget.RecyclerView>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <!-- empty alert -->
+    <TextView
+        android:id="@+id/jp_is_empty_list"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@drawable/custom_bg_rounded_white"
+        android:padding="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:textSize="14dp"
+        android:gravity="center"
+        android:textColor="@color/darkBlue"
+        android:text="There's no data to display."
+        android:visibility="gone"/>
+
+</LinearLayout>
