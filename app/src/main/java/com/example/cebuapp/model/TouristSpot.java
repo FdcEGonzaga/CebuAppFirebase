@@ -7,11 +7,66 @@ import java.io.Serializable;
 public class TouristSpot implements Serializable {
     @Exclude
     private String key;
+    private Boolean approved;
+    private String touristAuthor;
+    private String touristSpotImg;
     private String touristSpotAddress;
     private String touristSpotContactEmail;
     private String touristSpotContactNum;
     private String touristSpotDescription;
-    private String touristSpotPostedDate;
+    private String touristSpotPosted;
+    private String touristSpotProvince;
+    private String touristSpotTitle;
+    private Integer pos;
+
+    public TouristSpot() {}
+    public TouristSpot(Boolean approved, String touristAuthor, String touristSpotImg, String touristSpotAddress, String touristSpotContactEmail,
+                       String touristSpotContactNum, String touristSpotDescription, String touristSpotPosted, String touristSpotProvince,
+                       String touristSpotTitle, Integer pos) {
+        this.approved = approved;
+        this.touristAuthor = touristAuthor;
+        this.touristSpotImg = touristSpotImg;
+        this.touristSpotAddress = touristSpotAddress;
+        this.touristSpotContactEmail = touristSpotContactEmail;
+        this.touristSpotContactNum = touristSpotContactNum;
+        this.touristSpotDescription = touristSpotDescription;
+        this.touristSpotPosted = touristSpotPosted;
+        this.touristSpotProvince = touristSpotProvince;
+        this.touristSpotTitle = touristSpotTitle;
+        this.pos = pos;
+    }
+
+    public String getTouristAuthor() {
+        return touristAuthor;
+    }
+
+    public void setTouristAuthor(String touristAuthor) {
+        this.touristAuthor = touristAuthor;
+    }
+
+    public Integer getPos() {
+        return pos;
+    }
+
+    public void setPos(Integer pos) {
+        this.pos = pos;
+    }
+
+    public Boolean getApproved() {
+        return approved;
+    }
+
+    public void setApproved(Boolean approved) {
+        this.approved = approved;
+    }
+
+    public String getTouristSpotImg() {
+        return touristSpotImg;
+    }
+
+    public void setTouristSpotImg(String touristSpotImg) {
+        this.touristSpotImg = touristSpotImg;
+    }
 
     public String getKey() {
         return key;
@@ -53,12 +108,12 @@ public class TouristSpot implements Serializable {
         this.touristSpotDescription = touristSpotDescription;
     }
 
-    public String getTouristSpotPostedDate() {
-        return touristSpotPostedDate;
+    public String getTouristSpotPosted() {
+        return touristSpotPosted;
     }
 
-    public void setTouristSpotPostedDate(String touristSpotPostedDate) {
-        this.touristSpotPostedDate = touristSpotPostedDate;
+    public void setTouristSpotPosted(String touristSpotPosted) {
+        this.touristSpotPosted = touristSpotPosted;
     }
 
     public String getTouristSpotProvince() {
@@ -76,20 +131,4 @@ public class TouristSpot implements Serializable {
     public void setTouristSpotTitle(String touristSpotTitle) {
         this.touristSpotTitle = touristSpotTitle;
     }
-
-    private String touristSpotProvince;
-    private String touristSpotTitle;
-
-    public TouristSpot() {}
-    public TouristSpot(String touristSpotAddress, String touristSpotContactEmail, String touristSpotContactNum, String touristSpotDescription,
-                       String touristSpotPostedDate, String touristSpotProvince, String touristSpotTitle) {
-        this.touristSpotAddress = touristSpotAddress;
-        this.touristSpotContactEmail = touristSpotContactEmail;
-        this.touristSpotContactNum = touristSpotContactNum;
-        this.touristSpotDescription = touristSpotDescription;
-        this.touristSpotPostedDate = touristSpotPostedDate;
-        this.touristSpotProvince = touristSpotProvince;
-        this.touristSpotTitle = touristSpotTitle;
-    }
-
 }

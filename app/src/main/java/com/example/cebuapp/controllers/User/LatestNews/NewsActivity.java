@@ -57,7 +57,7 @@ public class NewsActivity extends AppCompatActivity implements NewsSelectListene
         dialog.show();
 
         castComponents();
-        setSearchViewListener();
+        searchWordListener();
         setBtnListeners();
 
         // main spinner
@@ -161,7 +161,7 @@ public class NewsActivity extends AppCompatActivity implements NewsSelectListene
                 .putExtra("data", articles));
     }
 
-    private void setSearchViewListener() {
+    private void searchWordListener() {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -191,5 +191,13 @@ public class NewsActivity extends AppCompatActivity implements NewsSelectListene
         // call api
         NewsRequestManager manager = new NewsRequestManager(this);
         manager.getNewsHeadlines(listener, category, null);
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(new Intent(getApplicationContext(), HomeActivity.class)));
+        finish();
     }
 }

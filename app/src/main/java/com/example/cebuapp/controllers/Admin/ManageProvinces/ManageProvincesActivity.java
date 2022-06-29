@@ -1,7 +1,10 @@
 package com.example.cebuapp.controllers.Admin.ManageProvinces;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -17,9 +20,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.example.cebuapp.Helper.HelperUtilities;
 import com.example.cebuapp.R;
 import com.example.cebuapp.model.Province;
 import com.example.cebuapp.controllers.HomeActivity;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -44,11 +49,53 @@ public class ManageProvincesActivity extends AppCompatActivity {
     private ProgressDialog dialog;
     private ImageButton backBtn, addNewBtn;
     private Intent intent;
+    private Province editProvince;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_provinces);
+
+        if (isConnectedToInternet()) {
+            // cast components
+            castComponents();
+            setListeners();
+            loadData();
+
+            // check intent extra for editing province
+            editProvince = (Province) getIntent().getSerializableExtra("provinceEdit");
+            if (editProvince != null) {
+                province_input_name.setText(editProvince.getProvinceName());
+                province_input_name.requestFocus();
+                province_name_label.setText("Editing Province name:");
+                province_action_btn.setText("EDIT");
+                // show form
+                add_edit_form.setVisibility(View.VISIBLE);
+                swipeRefreshLayout.setVisibility(View.GONE);
+                // hide main btns
+                addNewBtn.setVisibility(View.INVISIBLE);
+                backBtn.setVisibility(View.INVISIBLE);
+            }
+        } else {
+            HelperUtilities.showNoInternetAlert(ManageProvincesActivity.this);
+        }
+    }
+
+    private void castComponents() {
+        province_input_name = findViewById(R.id.province_input_name);
+        province_action_btn = findViewById(R.id.province_action_btn);
+        province_name_label = findViewById(R.id.province_name_label);
+        isEmptyList = findViewById(R.id.is_empty_list);
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
+        recyclerView = findViewById(R.id.rv);
+
+        // form
+        add_edit_form = findViewById(R.id.add_edit_form);
+
+        // btns
+        addNewBtn = findViewById(R.id.add_new_btn);
+        cancel_btn = findViewById(R.id.cancel_btn);
+        backBtn = findViewById(R.id.back_btn);
 
         // init firebase DB
         FirebaseDatabase db = FirebaseDatabase.getInstance();
@@ -59,16 +106,43 @@ public class ManageProvincesActivity extends AppCompatActivity {
         dialog = new ProgressDialog(this);
         dialog.setCanceledOnTouchOutside(false);
 
-        // cast components
-        castComponents();
-
         // showing province recycler view
         LinearLayoutManager manager = new LinearLayoutManager(this);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(manager);
         adapter = new ManageProvincesRVAdapter(this);
         recyclerView.setAdapter(adapter);
-        loadData();
+    }
+
+    private void setListeners() {
+        // add new btn
+        addNewBtn.setOnClickListener(v -> {
+            // hide main btns
+            addNewBtn.setVisibility(View.INVISIBLE);
+            backBtn.setVisibility(View.INVISIBLE);
+            // show form and hide rv
+            add_edit_form.setVisibility(View.VISIBLE);
+            province_name_label.setText("Add a Province Name:");
+            province_input_name.setText("");
+            province_input_name.requestFocus();
+            province_action_btn.setText("ADD");
+        });
+
+        // cancel btn
+        cancel_btn.setOnClickListener(v -> {
+            // show main btns
+            addNewBtn.setVisibility(View.VISIBLE);
+            backBtn.setVisibility(View.VISIBLE);
+            // hide form and show rv
+            add_edit_form.setVisibility(View.GONE);
+            swipeRefreshLayout.setVisibility(View.VISIBLE);
+        });
+
+        // back to home btn
+        backBtn.setOnClickListener(v-> {
+            intent = new Intent(ManageProvincesActivity.this, HomeActivity.class);
+            startActivity(intent);
+        });
 
         // check recyclerview contents
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -86,27 +160,12 @@ public class ManageProvincesActivity extends AppCompatActivity {
             }
         });
 
-        // check intent extra for editing province
-        Province editProvince = (Province) getIntent().getSerializableExtra("provinceEdit");
-        if (editProvince != null) {
-            province_input_name.setText(editProvince.getProvinceName());
-            province_input_name.requestFocus();
-            province_name_label.setText("Editing Province name:");
-            province_action_btn.setText("EDIT");
-            // show form
-            add_edit_form.setVisibility(View.VISIBLE);
-            swipeRefreshLayout.setVisibility(View.GONE);
-            // hide main btns
-            addNewBtn.setVisibility(View.INVISIBLE);
-            backBtn.setVisibility(View.INVISIBLE);
-        }
-
         // province save/edit btn is clicked
         province_action_btn.setOnClickListener(v -> {
             // get value
             String provinceNameVal = province_input_name.getText().toString().trim().toUpperCase();
 
-            // construct data
+            // construct data for saving
             Province provinceData = new Province(provinceNameVal);
 
             // validate input
@@ -146,7 +205,7 @@ public class ManageProvincesActivity extends AppCompatActivity {
                             "Province updating failed, please try again.", Toast.LENGTH_LONG).show();
                 });
 
-            // add new prov
+                // add new prov
             } else {
                 crudProv.addProvince(provinceData).addOnSuccessListener(suc -> {
                     Toast.makeText(ManageProvincesActivity.this,
@@ -162,52 +221,6 @@ public class ManageProvincesActivity extends AppCompatActivity {
                             "Province name adding failed, please try again.", Toast.LENGTH_LONG).show();
                 });
             }
-        });
-    }
-
-    private void castComponents() {
-        province_input_name = findViewById(R.id.province_input_name);
-        province_action_btn = findViewById(R.id.province_action_btn);
-        province_name_label = findViewById(R.id.province_name_label);
-        isEmptyList = findViewById(R.id.is_empty_list);
-        swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
-        recyclerView = findViewById(R.id.rv);
-
-        // form
-        add_edit_form = findViewById(R.id.add_edit_form);
-
-        // btns
-        addNewBtn = findViewById(R.id.add_new_btn);
-        cancel_btn = findViewById(R.id.cancel_btn);
-        backBtn = findViewById(R.id.back_btn);
-
-        // add new btn
-        addNewBtn.setOnClickListener(v -> {
-            // hide main btns
-            addNewBtn.setVisibility(View.INVISIBLE);
-            backBtn.setVisibility(View.INVISIBLE);
-            // show form and hide rv
-            add_edit_form.setVisibility(View.VISIBLE);
-            province_name_label.setText("Add a Province Name:");
-            province_input_name.setText("");
-            province_input_name.requestFocus();
-            province_action_btn.setText("ADD");
-        });
-
-        // cancel btn
-        cancel_btn.setOnClickListener(v -> {
-            // show main btns
-            addNewBtn.setVisibility(View.VISIBLE);
-            backBtn.setVisibility(View.VISIBLE);
-            // hide form and show rv
-            add_edit_form.setVisibility(View.GONE);
-            swipeRefreshLayout.setVisibility(View.VISIBLE);
-        });
-
-        // back to home btn
-        backBtn.setOnClickListener(v-> {
-            intent = new Intent(ManageProvincesActivity.this, HomeActivity.class);
-            startActivity(intent);
         });
     }
 
@@ -248,6 +261,16 @@ public class ManageProvincesActivity extends AppCompatActivity {
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
+    }
+
+    private boolean isConnectedToInternet() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED
+                || connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override

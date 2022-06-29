@@ -1,16 +1,61 @@
-package com.example.cebuapp.model;
+package com.example.cebuapp.Helper;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-
+import androidx.appcompat.app.AlertDialog;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class HelperUtilities {
+
+    public static  String getCurrentDate() {
+        Date calendar = Calendar.getInstance().getTime();
+        SimpleDateFormat df = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
+        return df.format(calendar);
+    }
+
+    public static void showOkAlert(Context context, String msg) {
+        new AlertDialog.Builder(context)
+                .setTitle("CebuApp")
+                .setMessage(msg)
+                .setCancelable(false)
+                .setNegativeButton(android.R.string.ok, null)
+                .create().show();
+    }
+
+    public static void showConfirmAlert(Context context, String msg) {
+        new AlertDialog.Builder(context)
+                .setTitle("CebuApp")
+                .setMessage(msg)
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface arg0, int arg1) {
+
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                }).create().show();
+    }
+
+    public static void showNoInternetAlert(Context context) {
+        new AlertDialog.Builder(context)
+                .setTitle("CebuApp")
+                .setMessage("Please check your internet connection and try again.")
+                .setCancelable(false)
+                .setNegativeButton(android.R.string.ok, null)
+                .create().show();
+    }
 
     public static boolean isValidPostalCode(String postalCode) {
         String regexPostalCode = "[A-Za-z][0-9][A-Za-z] [0-9][A-Za-z][0-9]";
@@ -174,7 +219,6 @@ public class HelperUtilities {
             }
         }
         return sb.toString();
-
     }
 
     private static boolean hasSpecialChars(String input) {

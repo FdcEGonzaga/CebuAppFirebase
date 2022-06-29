@@ -1,7 +1,10 @@
 package com.example.cebuapp.controllers.Admin.ManageJobFields;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -17,7 +20,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.example.cebuapp.Helper.HelperUtilities;
 import com.example.cebuapp.R;
+import com.example.cebuapp.controllers.Admin.ManageJobPosts.ManageJobsPostsActivity;
 import com.example.cebuapp.model.JobFields;
 import com.example.cebuapp.controllers.HomeActivity;
 import com.google.firebase.database.DataSnapshot;
@@ -44,31 +49,69 @@ public class ManageJobsFieldsActivity extends AppCompatActivity {
     private ProgressDialog dialog;
     private ImageButton backBtn, addNewBtn;
     private Intent intent;
+    private JobFields editJobFieldTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_job_fields);
 
-        // init firebase DB
-        FirebaseDatabase db = FirebaseDatabase.getInstance();
-        databaseReference = db.getReference("cebuapp_job_fields");
+        if (isConnectedToInternet()) {
+            // cast components
+            castComponents();
+            setListeners();
+            loadData();
 
-        // load crudJobFields
-        crudJobFields = new CRUDManageJobFields();
-        dialog = new ProgressDialog(this);
-        dialog.setCanceledOnTouchOutside(false);
+            // check intent extra for editing job field
+            editJobFieldTitle = (JobFields) getIntent().getSerializableExtra("jobFieldEdit");
+            if (editJobFieldTitle != null) {
+                jf_title_input.setText(editJobFieldTitle.getJobFieldTitle());
+                jf_title_input.requestFocus();
+                jf_title_label.setText("Editing Job Field Title:");
+                jf_action_btn.setText("EDIT");
+                // hide form and show data
+                add_edit_form.setVisibility(View.VISIBLE);
+                swipeRefreshLayout.setVisibility(View.GONE);
+                // hide main btns
+                addNewBtn.setVisibility(View.INVISIBLE);
+                backBtn.setVisibility(View.INVISIBLE);
+            }
+        } else {
+            HelperUtilities.showNoInternetAlert(ManageJobsFieldsActivity.this);
+        }
+    }
 
-        // cast components
-        castComponents();
+    private void setListeners() {
+        // add new btn
+        addNewBtn.setOnClickListener(v -> {
+            // hide main btns
+            addNewBtn.setVisibility(View.INVISIBLE);
+            backBtn.setVisibility(View.INVISIBLE);
+            // show form and hide rv
+            add_edit_form.setVisibility(View.VISIBLE);
+            jf_title_label.setText("Add a Job Field Title:");
+            jf_title_input.setText("");
+            jf_title_input.requestFocus();
+            jf_action_btn.setText("ADD");
+        });
 
-        // showing the recycler view
-        LinearLayoutManager manager = new LinearLayoutManager(this);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(manager);
-        adapter = new ManageJobFieldsRVAdapter(this);
-        recyclerView.setAdapter(adapter);
-        loadData();
+        // cancel btn
+        cancel_btn.setOnClickListener(v -> {
+            // show main btns
+            addNewBtn.setVisibility(View.VISIBLE);
+            backBtn.setVisibility(View.VISIBLE);
+            // hide form and show rv
+            add_edit_form.setVisibility(View.GONE);
+            swipeRefreshLayout.setVisibility(View.VISIBLE);
+        });
+
+        // back to home btn
+        backBtn.setOnClickListener(v-> {
+            intent = new Intent(new Intent(ManageJobsFieldsActivity.this, HomeActivity.class));
+            intent.putExtra("isFromMngJobPostActivity", true);
+            startActivity(intent);
+            finish();
+        });
 
         // check recyclerview contents
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -85,21 +128,6 @@ public class ManageJobsFieldsActivity extends AppCompatActivity {
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
-
-        // check intent extra for editing job field
-        JobFields editJobFieldTitle = (JobFields) getIntent().getSerializableExtra("jobFieldEdit");
-        if (editJobFieldTitle != null) {
-            jf_title_input.setText(editJobFieldTitle.getJobFieldTitle());
-            jf_title_input.requestFocus();
-            jf_title_label.setText("Editing Job Field Title:");
-            jf_action_btn.setText("EDIT");
-            // hide form and show data
-            add_edit_form.setVisibility(View.VISIBLE);
-            swipeRefreshLayout.setVisibility(View.GONE);
-            // hide main btns
-            addNewBtn.setVisibility(View.INVISIBLE);
-            backBtn.setVisibility(View.INVISIBLE);
-        }
 
         // job field add/edit btn is clicked
         jf_action_btn.setOnClickListener(v -> {
@@ -146,7 +174,7 @@ public class ManageJobsFieldsActivity extends AppCompatActivity {
                             "Job Field Title updating failed, please try again.", Toast.LENGTH_LONG).show();
                 });
 
-            // insert or add new prov
+                // insert or add new prov
             } else {
                 crudJobFields.addJobFields(jobFieldData).addOnSuccessListener(suc -> {
                     Toast.makeText(ManageJobsFieldsActivity.this,
@@ -182,34 +210,21 @@ public class ManageJobsFieldsActivity extends AppCompatActivity {
         cancel_btn = findViewById(R.id.cancel_btn);
         backBtn = findViewById(R.id.back_btn);
 
-        // add new btn
-        addNewBtn.setOnClickListener(v -> {
-            // hide main btns
-            addNewBtn.setVisibility(View.INVISIBLE);
-            backBtn.setVisibility(View.INVISIBLE);
-            // show form and hide rv
-            add_edit_form.setVisibility(View.VISIBLE);
-            jf_title_label.setText("Add a Job Field Title:");
-            jf_title_input.setText("");
-            jf_title_input.requestFocus();
-            jf_action_btn.setText("ADD");
-        });
+        // init firebase DB
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        databaseReference = db.getReference("cebuapp_job_fields");
 
-        // cancel btn
-        cancel_btn.setOnClickListener(v -> {
-            // show main btns
-            addNewBtn.setVisibility(View.VISIBLE);
-            backBtn.setVisibility(View.VISIBLE);
-            // hide form and show rv
-            add_edit_form.setVisibility(View.GONE);
-            swipeRefreshLayout.setVisibility(View.VISIBLE);
-        });
+        // load crudJobFields
+        crudJobFields = new CRUDManageJobFields();
+        dialog = new ProgressDialog(this);
+        dialog.setCanceledOnTouchOutside(false);
 
-        // back to home btn
-        backBtn.setOnClickListener(v-> {
-            intent = new Intent(ManageJobsFieldsActivity.this, HomeActivity.class);
-            startActivity(intent);
-        });
+        // showing the recycler view
+        LinearLayoutManager manager = new LinearLayoutManager(this);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(manager);
+        adapter = new ManageJobFieldsRVAdapter(this);
+        recyclerView.setAdapter(adapter);
     }
 
     private void loadData() {
@@ -251,10 +266,21 @@ public class ManageJobsFieldsActivity extends AppCompatActivity {
         });
     }
 
+    private boolean isConnectedToInternet() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED
+                || connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     @Override
     public void onBackPressed() {
-        // go back to admin homepage
-        Intent intent = new Intent(ManageJobsFieldsActivity.this, HomeActivity.class);
+        super.onBackPressed();
+        intent = new Intent(new Intent(ManageJobsFieldsActivity.this, HomeActivity.class));
+        intent.putExtra("isFromMngJobPostActivity", true);
         startActivity(intent);
         finish();
     }

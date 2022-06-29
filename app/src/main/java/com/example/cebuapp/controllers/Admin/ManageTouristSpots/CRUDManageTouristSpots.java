@@ -13,15 +13,19 @@ public class CRUDManageTouristSpots {
 
     public CRUDManageTouristSpots() {
         FirebaseDatabase fdb = FirebaseDatabase.getInstance();
-            databaseReference = fdb.getReference("cebuapp_tourist_spots");
+        databaseReference = fdb.getReference("cebuapp_tourist_spots");
     }
 
-    public Query get(String key) {
+    public Query getAll(String key) {
         return databaseReference.orderByKey();
     }
 
-    public Query getByProvince(String provinceName) {
-        return databaseReference.orderByChild("touristSpotProvince").equalTo(provinceName);
+    public Query getSearchedWord(String searchWord) {
+        return databaseReference.orderByChild("touristSpotTitle").startAt(searchWord).endAt(searchWord + "\uf8ff");
+    }
+
+    public Query getAllApproved() {
+        return databaseReference.orderByChild("approved").equalTo(true);
     }
 
     public Task<Void> add(TouristSpot touristSpots) {

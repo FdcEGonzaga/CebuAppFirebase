@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/adminPostCard"
+    android:id="@+id/cardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginLeft="10dp"
     android:layout_marginRight="10dp"
-    android:layout_marginBottom="15dp"
+    android:layout_marginBottom="20dp"
     app:cardBackgroundColor="@color/whiter"
     app:cardCornerRadius="10dp"
     app:cardElevation="5dp"
@@ -16,93 +16,60 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:background="@drawable/custom_bg_rounded_white"
         android:weightSum="3">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="15dp"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:layout_weight="2">
-
-            <ImageView
-                android:id="@+id/adminListImg"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:adjustViewBounds="true"
-                android:background="@color/white"
-                android:contentDescription="FOOD AREA IMAGE"
-                android:layout_gravity="center"
-                android:src="@drawable/logo" />
+            android:background="@color/lightBlue"
+            android:layout_weight="1">
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
+            android:layout_margin="10dp"
             android:orientation="vertical"
             android:layout_weight="1">
 
             <TextView
-                android:id="@+id/adminListTitle"
+                android:id="@+id/listTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:maxLines="1"
                 android:text="@string/news_sample_text"
                 android:textColor="@color/darkBlue"
-                android:layout_marginBottom="5dp"
                 android:textSize="20sp"
                 android:textStyle="bold">
 
             </TextView>
             <TextView
-                android:id="@+id/adminListDesc1"
+                android:id="@+id/listDesc1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
                 android:textSize="13sp"
-                android:textColor="@color/darkBlue"
+                android:textColor="@color/blue"
                 android:textStyle="bold"
-                android:layout_marginBottom="2dp"
                 android:text="@string/news_sample_text"
                 android:maxLines="1">
 
             </TextView>
             <TextView
-                android:id="@+id/adminListDesc2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="13sp"
-                android:textColor="@color/darkBlue"
-                android:layout_marginBottom="3dp"
-                android:text="@string/news_sample_text"
-                android:maxLines="1">
-
-            </TextView>
-            <TextView
-                android:id="@+id/adminListDesc3"
+                android:id="@+id/listDesc2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="13sp"
                 android:textColor="@color/blue"
-                android:layout_marginBottom="3dp"
                 android:text="@string/news_sample_text"
                 android:maxLines="1">
 
             </TextView>
 
         </LinearLayout>
-        <TextView
-            android:id="@+id/adminListMenu"
-            android:layout_width="20dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="right"
-            android:paddingRight="5dp"
-            android:text="&#8942;"
-            android:gravity="top|right"
-            android:textSize="20sp"/>
 
     </LinearLayout>
 

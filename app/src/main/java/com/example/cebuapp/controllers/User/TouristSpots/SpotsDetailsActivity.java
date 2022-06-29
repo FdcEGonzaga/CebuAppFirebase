@@ -1,25 +1,27 @@
 package com.example.cebuapp.controllers.User.TouristSpots;
 
-import android.Manifest;
-import android.content.ActivityNotFoundException;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.PackageManagerCompat;
 
+import com.example.cebuapp.Helper.HelperUtilities;
+import com.example.cebuapp.Helper.ShowImageUrl;
 import com.example.cebuapp.R;
+import com.example.cebuapp.controllers.HomeActivity;
 import com.example.cebuapp.model.TouristSpot;
 
 import java.text.SimpleDateFormat;
@@ -35,6 +37,8 @@ public class SpotsDetailsActivity extends AppCompatActivity {
             spotsDetailEmail, spotsDetailPosted;
     private Button callBtn, emailBtn;
     private TouristSpot spotsData;
+    private ProgressDialog dialog;
+    private ScrollView spotContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,47 +47,73 @@ public class SpotsDetailsActivity extends AppCompatActivity {
 
         castComponents();
         getCurrentDate();
+
+        dialog = new ProgressDialog(this);
+        dialog.setCanceledOnTouchOutside(false);
+        spotContainer.setVisibility(View.GONE);
+
         intent = getIntent();
 
         if (isConnectedToInternet()) {
             // check intent extra for editing food field
             spotsData = (TouristSpot) getIntent().getSerializableExtra("FIREBASE_DATA");
 
-            if (spotsData != null) {
-                spotsDetailTitle.setText(spotsData.getTouristSpotTitle());
-                spotsDetailLandmark.setText(spotsData.getTouristSpotAddress());
-                spotsDetailProvince.setText(spotsData.getTouristSpotProvince() + ", CEBU");
-                spotsDetailDescription.setText(spotsData.getTouristSpotDescription());
-                spotsDetailContact.setText(spotsData.getTouristSpotContactNum());
-                spotsDetailEmail.setText(spotsData.getTouristSpotContactEmail());
-                spotsDetailPosted.setText(spotsData.getTouristSpotPostedDate());
-            }
+            // load img first
+            new ShowImageUrl((ImageView) findViewById(R.id.detailImg))
+                    .execute(spotsData.getTouristSpotImg());
+
+            // load other data
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (spotsData != null) {
+                        spotsDetailTitle.setText(spotsData.getTouristSpotTitle());
+                        spotsDetailLandmark.setText(spotsData.getTouristSpotAddress());
+                        spotsDetailProvince.setText(spotsData.getTouristSpotProvince() + ", CEBU");
+                        spotsDetailDescription.setText(spotsData.getTouristSpotDescription());
+                        spotsDetailContact.setText(spotsData.getTouristSpotContactNum());
+                        spotsDetailEmail.setText(spotsData.getTouristSpotContactEmail());
+                        spotsDetailPosted.setText(spotsData.getTouristSpotPosted());
+
+                        // show container
+                        spotContainer.setVisibility(View.VISIBLE);
+                    }
+                }
+            }, 1000);
+
             // back btn
             backBtn.setOnClickListener(v -> {
-                intent = new Intent(SpotsDetailsActivity.this, SpotsActivity.class);
+                intent = new Intent(new Intent(getApplicationContext(), SpotsActivity.class));
+                intent.putExtra("provSpinPos", spotsData.getPos());
                 startActivity(intent);
+                finish();
             });
 
             // call food are btn
             callBtn.setOnClickListener(v -> {
-                //intent = new Intent(FoodDetailsActivity.this, DialActivity.class);
-                //intent.putExtra("CONTACTNUMBER", spotsData.getFoodContactNum());
-                //startActivity(intent);
-                intent = new Intent(Intent.ACTION_DIAL, Uri.parse(Uri.encode(spotsData.getTouristSpotContactNum())));
+                intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:"+Uri.encode(spotsData.getTouristSpotContactNum().trim())));
                 startActivity(intent);
             });
 
             // email food are btn
             emailBtn.setOnClickListener(v -> {
-                Toast.makeText(this, "Email", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(Intent.ACTION_SENDTO);
+                intent.setData(Uri.parse("mailto:"));
+                intent.putExtra(Intent.EXTRA_EMAIL, new String[] {"fdc.egonzaga@gmail.com"});
+                intent.putExtra(Intent.EXTRA_SUBJECT, "CEBU APP - " + spotsData.getTouristSpotTitle().trim());
+                if (intent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(intent);
+                }
             });
 
         } else {
-            Toast.makeText(this, "Please connect to the internet.", Toast.LENGTH_SHORT).show();
+            HelperUtilities.showNoInternetAlert(SpotsDetailsActivity.this);
         }
     }
 
     private void castComponents() {
+        spotContainer = findViewById(R.id.spotContainer);
         spotsDetailImg = findViewById(R.id.detailImg);
         spotsDetailTitle = findViewById(R.id.detailTitle);
         spotsDetailLandmark = findViewById(R.id.detailLandmark);
@@ -111,5 +141,14 @@ public class SpotsDetailsActivity extends AppCompatActivity {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        intent = new Intent(new Intent(getApplicationContext(), SpotsActivity.class));
+        intent.putExtra("provSpinPos", spotsData.getPos());
+        startActivity(intent);
+        finish();
     }
 }

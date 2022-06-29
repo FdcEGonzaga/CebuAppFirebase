@@ -3,8 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.cebuapp">
 
-    <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -63,9 +64,6 @@
             android:exported="false" />
         <activity
             android:name=".controllers.User.JobPosts.JobsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".controllers.User.FoodAreas.DialActivity"
             android:exported="false" />
         <activity
             android:name=".controllers.User.Splashs.SplashJobsActivity"

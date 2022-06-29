@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cebuapp.R;
 import com.example.cebuapp.model.FoodArea;
+import com.squareup.picasso.Picasso;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class FoodRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.custom_food_list_item, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.custom_list_item_food, parent, false);
         return new FoodVH(view);
     }
 
@@ -50,10 +51,12 @@ public class FoodRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         FoodVH myHolder = (FoodVH) holder;
         FoodArea foodAreas = list.get(position);
 
-        // myHolder.listImg.setText(foodAreas.getJobPostTitle());
+        if (foodAreas.getFoodImg()!= null) {
+            Picasso.get().load(foodAreas.getFoodImg()).into(myHolder.listImg);
+        }
         myHolder.listTitle.setText(foodAreas.getFoodTitle());
-        myHolder.listDesc1.setText(foodAreas.getFoodAddress());
-        myHolder.listDesc2.setText(foodAreas.getFoodProvince());
+        myHolder.listDesc1.setText(foodAreas.getFoodProvince());
+        myHolder.listDesc2.setText(foodAreas.getFoodAddress());
         myHolder.listDesc3.setText(foodAreas.getFoodPosted());
         // card view click listener
         myHolder.cardView.setOnClickListener(new View.OnClickListener() {

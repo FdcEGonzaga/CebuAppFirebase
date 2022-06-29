@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -99,5 +100,15 @@ public class ManageJobFieldsRVAdapter extends RecyclerView.Adapter<RecyclerView.
     @Override
     public int getItemCount() {
         return list.size();
+    }
+
+    public class ManageJobFieldsVH extends RecyclerView.ViewHolder {
+
+        public TextView csv_txt_title, csv_txt_menu;
+        public ManageJobFieldsVH(@NonNull View itemView) {
+            super(itemView);
+            csv_txt_title = itemView.findViewById(R.id.csv_txt_title);
+            csv_txt_menu = itemView.findViewById(R.id.csv_txt_menu);
+        }
     }
 }

@@ -7,6 +7,9 @@ import java.io.Serializable;
 public class FoodArea implements Serializable {
     @Exclude
     private String key;
+    private Boolean approved;
+    private String foodImg;
+    private String foodAuthor;
     private String foodAddress;
     private String foodContactEmail;
     private String foodContactNum;
@@ -14,11 +17,14 @@ public class FoodArea implements Serializable {
     private String foodPosted;
     private String foodProvince;
     private String foodTitle;
-    private String isApproved;
+    private Integer spinnerPos;
 
     public FoodArea() {}
-    public FoodArea(String foodAddress, String foodContactEmail, String foodContactNum, String foodDescription,
-                    String foodPosted, String foodProvince, String foodTitle, Boolean isApproved) {
+    public FoodArea(Boolean approved, String foodAuthor, String foodImg, String foodAddress, String foodContactEmail, String foodContactNum,
+                    String foodDescription, String foodPosted, String foodProvince, String foodTitle, Integer spinnerPos) {
+        this.approved = approved;
+        this.foodAuthor = foodAuthor;
+        this.foodImg = foodImg;
         this.foodAddress = foodAddress;
         this.foodContactEmail = foodContactEmail;
         this.foodContactNum = foodContactNum;
@@ -26,7 +32,39 @@ public class FoodArea implements Serializable {
         this.foodPosted = foodPosted;
         this.foodProvince = foodProvince;
         this.foodTitle = foodTitle;
-        this.isApproved = foodTitle;
+        this.spinnerPos = spinnerPos;
+    }
+
+    public String getFoodAuthor() {
+        return foodAuthor;
+    }
+
+    public void setFoodAuthor(String foodAuthor) {
+        this.foodAuthor = foodAuthor;
+    }
+
+    public Integer getSpinnerPos() {
+        return spinnerPos;
+    }
+
+    public void setSpinnerPos(Integer spinnerPos) {
+        this.spinnerPos = spinnerPos;
+    }
+
+    public Boolean getApproved() {
+        return approved;
+    }
+
+    public void setApproved(Boolean approved) {
+        this.approved = approved;
+    }
+
+    public String getFoodImg() {
+        return foodImg;
+    }
+
+    public void setFoodImg(String foodImg) {
+        this.foodImg = foodImg;
     }
 
     public String getKey() {
@@ -91,13 +129,5 @@ public class FoodArea implements Serializable {
 
     public void setFoodTitle(String foodTitle) {
         this.foodTitle = foodTitle;
-    }
-
-    public String getIsApproved() {
-        return isApproved;
-    }
-
-    public void setIsApproved(String isApproved) {
-        this.isApproved = isApproved;
     }
 }

@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cebuapp.R;
 import com.example.cebuapp.model.TouristSpot;
+import com.squareup.picasso.Picasso;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -41,7 +43,7 @@ public class SpotsRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.custom_spots_list_item, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.custom_list_item_spots, parent, false);
         return new SpotsVH(view);
     }
 
@@ -50,11 +52,13 @@ public class SpotsRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         SpotsVH myHolder = (SpotsVH) holder;
         TouristSpot tourisSpots = list.get(position);
 
-        // myHolder.listImg.setText(tourisSpots.getJobPostTitle());
+        if (tourisSpots.getTouristSpotImg()!= null) {
+            Picasso.get().load(tourisSpots.getTouristSpotImg()).into(myHolder.listImg);
+        }
         myHolder.listTitle.setText(tourisSpots.getTouristSpotTitle());
         myHolder.listDesc1.setText(tourisSpots.getTouristSpotAddress());
         myHolder.listDesc2.setText(tourisSpots.getTouristSpotProvince());
-        myHolder.listDesc3.setText(tourisSpots.getTouristSpotPostedDate());
+        myHolder.listDesc3.setText(tourisSpots.getTouristSpotPosted());
         // card view click listener
         myHolder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,8 +78,8 @@ public class SpotsRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     // View holder
     public class SpotsVH extends RecyclerView.ViewHolder {
 
-        public ImageView listImg;
         public CardView cardView;
+        public ImageView listImg;
         public TextView listTitle, listDesc1, listDesc2, listDesc3;
         public SpotsVH(@NonNull View itemView) {
             super(itemView);

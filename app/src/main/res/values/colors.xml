@@ -18,5 +18,6 @@
 
     <color name="white">#FDFDFD</color>
     <color name="whiter">#FFFFFFFF</color>
+    <color name="faded_bg">#604FBDBA</color>
 
 </resources>

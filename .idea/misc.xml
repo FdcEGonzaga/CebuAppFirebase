@@ -4,6 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="../../../../Library/Android/sdk/platforms/android-32/data/res/layout/simple_spinner_dropdown_item.xml" value="0.24166666666666667" />
+        <entry key="../../../../layout/custom_preview.xml" value="0.1298351833165153" />
         <entry key="..\:/CebuApp/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.106" />
         <entry key="..\:/CebuApp/app/src/main/res/drawable/blackroundedbtn.xml" value="0.1495" />
         <entry key="..\:/CebuApp/app/src/main/res/drawable/custom_bg.xml" value="0.212" />
@@ -64,9 +65,11 @@
         <entry key="..\:/CebuApp/app/src/main/res/layout/layout_results.xml" value="0.33" />
         <entry key="..\:/CebuApp/app/src/main/res/menu/province_menu.xml" value="0.33055555555555555" />
         <entry key="app/src/main/res/drawable-v24/custom_btn_rounded2.xml" value="0.1135" />
+        <entry key="app/src/main/res/drawable/custom_bg_admin_rv.xml" value="0.142" />
+        <entry key="app/src/main/res/drawable/custom_bg_gradient.xml" value="0.16" />
         <entry key="app/src/main/res/drawable/custom_bg_opacity.xml" value="0.2065" />
         <entry key="app/src/main/res/drawable/custom_bg_opacity_top.xml" value="0.2065" />
-        <entry key="app/src/main/res/drawable/custom_bg_rounded_white.xml" value="0.2065" />
+        <entry key="app/src/main/res/drawable/custom_bg_rounded_white.xml" value="0.165" />
         <entry key="app/src/main/res/drawable/custom_btn_rounded.xml" value="0.182" />
         <entry key="app/src/main/res/drawable/custom_input_field.xml" value="0.2065" />
         <entry key="app/src/main/res/drawable/custom_wraper_top.xml" value="0.2065" />
@@ -74,23 +77,24 @@
         <entry key="app/src/main/res/layout/activity_account.xml" value="0.335" />
         <entry key="app/src/main/res/layout/activity_admin.xml" value="0.335" />
         <entry key="app/src/main/res/layout/activity_change_pass.xml" value="0.23802083333333332" />
-        <entry key="app/src/main/res/layout/activity_dial.xml" value="0.10208333333333333" />
-        <entry key="app/src/main/res/layout/activity_food.xml" value="0.165" />
+        <entry key="app/src/main/res/layout/activity_dial.xml" value="0.18" />
+        <entry key="app/src/main/res/layout/activity_food.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/activity_food_add.xml" value="0.28229166666666666" />
         <entry key="app/src/main/res/layout/activity_food_details.xml" value="0.335" />
         <entry key="app/src/main/res/layout/activity_home.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_job_details.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_jobs.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_jobs_details.xml" value="0.23245331616226658" />
         <entry key="app/src/main/res/layout/activity_login.xml" value="0.335" />
-        <entry key="app/src/main/res/layout/activity_manage_foodareas.xml" value="0.10775862068965517" />
+        <entry key="app/src/main/res/layout/activity_manage_foodareas.xml" value="0.335" />
         <entry key="app/src/main/res/layout/activity_manage_foodaresa.xml" value="0.23802083333333332" />
         <entry key="app/src/main/res/layout/activity_manage_job_fields.xml" value="0.25" />
-        <entry key="app/src/main/res/layout/activity_manage_job_posts.xml" value="0.335" />
+        <entry key="app/src/main/res/layout/activity_manage_job_posts.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_manage_jobs.xml" value="0.19895833333333332" />
         <entry key="app/src/main/res/layout/activity_manage_provinces.xml" value="0.25" />
-        <entry key="app/src/main/res/layout/activity_manage_touristspots.xml" value="0.10775862068965517" />
+        <entry key="app/src/main/res/layout/activity_manage_touristspots.xml" value="0.335" />
         <entry key="app/src/main/res/layout/activity_maps.xml" value="0.24166666666666667" />
-        <entry key="app/src/main/res/layout/activity_news.xml" value="0.21302083333333333" />
+        <entry key="app/src/main/res/layout/activity_news.xml" value="0.22" />
         <entry key="app/src/main/res/layout/activity_news_details.xml" value="0.23802083333333332" />
         <entry key="app/src/main/res/layout/activity_registration.xml" value="0.335" />
         <entry key="app/src/main/res/layout/activity_splash_food.xml" value="0.28229166666666666" />
@@ -103,12 +107,20 @@
         <entry key="app/src/main/res/layout/custom_commute_item.xml" value="0.19895833333333332" />
         <entry key="app/src/main/res/layout/custom_food_list_item.xml" value="0.31843575418994413" />
         <entry key="app/src/main/res/layout/custom_list_item.xml" value="0.3943089430894309" />
-        <entry key="app/src/main/res/layout/custom_list_item_admin.xml" value="0.375" />
+        <entry key="app/src/main/res/layout/custom_list_item_admin.xml" value="0.45" />
+        <entry key="app/src/main/res/layout/custom_list_item_food.xml" value="0.37604166666666666" />
+        <entry key="app/src/main/res/layout/custom_list_item_jobs.xml" value="0.27314814814814814" />
+        <entry key="app/src/main/res/layout/custom_list_item_spots.xml" value="0.28229166666666666" />
         <entry key="app/src/main/res/layout/custom_news_list_item.xml" value="0.335" />
         <entry key="app/src/main/res/layout/custom_province_list_item.xml" value="0.1" />
         <entry key="app/src/main/res/layout/custom_single_value_list_item.xml" value="0.375" />
         <entry key="app/src/main/res/layout/custom_spots_list_item.xml" value="0.33" />
-        <entry key="app/src/main/res/menu/edit_remove_menu.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/fragment_email.xml" value="0.49301983835415136" />
+        <entry key="app/src/main/res/layout/fragment_manage_food_areas.xml" value="0.1828774062816616" />
+        <entry key="app/src/main/res/layout/fragment_manage_job_post.xml" value="0.28229166666666666" />
+        <entry key="app/src/main/res/layout/fragment_manage_tourist_spots.xml" value="0.37604166666666666" />
+        <entry key="app/src/main/res/menu/approve_menu.xml" value="0.28229166666666666" />
+        <entry key="app/src/main/res/menu/edit_remove_menu.xml" value="0.335" />
         <entry key="app/src/main/res/menu/province_menu.xml" value="0.1" />
       </map>
     </option>

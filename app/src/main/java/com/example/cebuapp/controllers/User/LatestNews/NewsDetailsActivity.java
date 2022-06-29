@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.cebuapp.R;
+import com.example.cebuapp.controllers.HomeActivity;
 import com.example.cebuapp.model.NewsArticles;
 import com.squareup.picasso.Picasso;
 
@@ -48,5 +49,12 @@ public class NewsDetailsActivity extends AppCompatActivity {
         news_detail = findViewById(R.id.show_news_detail);
         news_content = findViewById(R.id.show_news_content);
         news_img = findViewById(R.id.show_news_img);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(new Intent(getApplicationContext(), NewsActivity.class)));
+        finish();
     }
 }

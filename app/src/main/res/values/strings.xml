@@ -30,4 +30,8 @@
     <string name="default_info_snippet">Default snippet</string>
     <string name="pick_place">Pick a place</string>
     <string name="splash_maps_descpription">Get the latest nearby places to visit on your current location</string>
+    <string name="short_sample_text">"This is a short sample text. This is a short sample text. This is a short sample text. "</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="one_word_text">Sample</string>
 </resources>

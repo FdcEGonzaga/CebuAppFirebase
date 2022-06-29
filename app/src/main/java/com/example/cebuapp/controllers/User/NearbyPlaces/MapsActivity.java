@@ -238,4 +238,13 @@ public class MapsActivity extends AppCompatActivity {
             }
         }
     }
+
+
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(new Intent(getApplicationContext(), HomeActivity.class)));
+        finish();
+    }
 }

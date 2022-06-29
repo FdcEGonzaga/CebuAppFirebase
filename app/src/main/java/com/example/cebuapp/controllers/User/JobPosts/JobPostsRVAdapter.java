@@ -2,24 +2,20 @@ package com.example.cebuapp.controllers.User.JobPosts;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cebuapp.R;
-import com.example.cebuapp.controllers.Admin.ManageJobPosts.ManageJobsPostsActivity;
 import com.example.cebuapp.model.JobPosts;
+import com.squareup.picasso.Picasso;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -46,7 +42,7 @@ public class JobPostsRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.custom_list_item, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.custom_list_item_jobs, parent, false);
         return new JobPostsVH(view);
     }
 
@@ -64,7 +60,6 @@ public class JobPostsRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             yearsExp = "At least " + yearsExp + " years experience";
         }
 
-        // myHolder.adminListImg.setText(jobPosts.getJobPostTitle());
         myHolder.listTitle.setText(jobPosts.getJobPostTitle());
         myHolder.listDesc1.setText(yearsExp);
         myHolder.listDesc2.setText("P " + jobPosts.getJobPostSalary() + "+ starting salary");
@@ -86,12 +81,10 @@ public class JobPostsRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     public class JobPostsVH extends RecyclerView.ViewHolder {
 
-        public ImageView listImg;
         public CardView cardView;
         public TextView listTitle, listDesc1, listDesc2;
         public JobPostsVH(@NonNull View itemView) {
             super(itemView);
-            listImg = itemView.findViewById(R.id.listImg);
             listTitle = itemView.findViewById(R.id.listTitle);
             listDesc1 = itemView.findViewById(R.id.listDesc1);
             listDesc2 = itemView.findViewById(R.id.listDesc2);

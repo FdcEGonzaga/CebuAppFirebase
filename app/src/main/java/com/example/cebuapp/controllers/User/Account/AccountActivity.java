@@ -23,8 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.cebuapp.R;
 import com.example.cebuapp.controllers.HomeActivity;
 import com.example.cebuapp.controllers.LoginActivity;
-import com.example.cebuapp.controllers.User.LatestNews.NewsActivity;
-import com.example.cebuapp.model.HelperUtilities;
+import com.example.cebuapp.Helper.HelperUtilities;
 import com.example.cebuapp.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -149,6 +148,7 @@ public class AccountActivity extends AppCompatActivity {
         btnEditProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                backBtn.setVisibility(View.INVISIBLE);
                 accountViewMainBtns.setVisibility(View.GONE);
                 profileView.setVisibility(View.GONE);
                 profileEdit.setVisibility(View.VISIBLE);
@@ -209,6 +209,7 @@ public class AccountActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 accountViewMainBtns.setVisibility(View.VISIBLE);
+                backBtn.setVisibility(View.VISIBLE);
                 profileView.setVisibility(View.VISIBLE);
                 profileEdit.setVisibility(View.GONE);
             }
@@ -266,7 +267,7 @@ public class AccountActivity extends AppCompatActivity {
                                 updateAccountProfile(userID, hashMap).addOnSuccessListener(suc -> {
                                     new AlertDialog.Builder(AccountActivity.this)
                                             .setTitle("CebuApp")
-                                            .setMessage("Great! Your account profile was updated successfully.")
+                                            .setMessage("Your account profile was updated successfully.")
                                             .setCancelable(false)
                                             .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                                                 public void onClick(DialogInterface arg0, int arg1) {
@@ -277,11 +278,11 @@ public class AccountActivity extends AppCompatActivity {
 
                                 }).addOnFailureListener(fail -> {
                                     Toast.makeText(AccountActivity.this,
-                                            "Profile updating failed, please try again.", Toast.LENGTH_LONG).show();
+                                            "Please re-login your account to ensure that you're the one updating your profile.", Toast.LENGTH_LONG).show();
                                 });
                             } else {
                                 Toast.makeText(AccountActivity.this,
-                                        "Failed updating profile's email, please try again.", Toast.LENGTH_LONG).show();
+                                        "An error occured while updating your email, please try again.", Toast.LENGTH_LONG).show();
                             }
                         }
                     });
@@ -354,5 +355,12 @@ public class AccountActivity extends AppCompatActivity {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(new Intent(getApplicationContext(), HomeActivity.class)));
+        finish();
     }
 }

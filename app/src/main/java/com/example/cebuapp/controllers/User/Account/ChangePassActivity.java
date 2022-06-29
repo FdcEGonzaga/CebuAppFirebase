@@ -12,9 +12,13 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.cebuapp.Helper.HelperUtilities;
 import com.example.cebuapp.R;
+import com.example.cebuapp.controllers.LoginActivity;
+import com.example.cebuapp.controllers.RegistrationActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -39,7 +43,7 @@ public class ChangePassActivity extends AppCompatActivity {
         btnResetPass.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                resetPassword();
+                    resetPassword();
             }
         });
     }
@@ -59,21 +63,27 @@ public class ChangePassActivity extends AppCompatActivity {
             return;
         }
 
-        progressBar.setVisibility(View.VISIBLE);
-        mAuth.sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    progressBar.setVisibility(View.INVISIBLE);
-                    Toast.makeText(ChangePassActivity.this,
-                            "Please check your email to reset your password.", Toast.LENGTH_LONG).show();
-                } else {
-                    progressBar.setVisibility(View.INVISIBLE);
-                    Toast.makeText(ChangePassActivity.this,
-                            "Failed reset password request, please try again.", Toast.LENGTH_LONG).show();
+        if (isConnectedToInternet()) {
+            progressBar.setVisibility(View.VISIBLE);
+            mAuth.sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        progressBar.setVisibility(View.INVISIBLE);
+                        HelperUtilities.showOkAlert(ChangePassActivity.this,
+                                "Please check your email to reset your password.");
+                    } else {
+                        progressBar.setVisibility(View.INVISIBLE);
+                        HelperUtilities.showOkAlert(ChangePassActivity.this,
+                                "Failed reset password request, please try again.");
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            // offline dialog
+            HelperUtilities.showOkAlert(ChangePassActivity.this,
+                "To reset your password, please connect to the internet.");
+        }
     }
 
     private boolean isConnectedToInternet() {

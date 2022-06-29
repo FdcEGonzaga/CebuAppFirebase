@@ -1,6 +1,9 @@
 package com.example.cebuapp.controllers;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.View;
@@ -11,10 +14,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.cebuapp.R;
-import com.example.cebuapp.model.HelperUtilities;
+import com.example.cebuapp.Helper.HelperUtilities;
 import com.example.cebuapp.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -52,7 +56,16 @@ public class RegistrationActivity extends AppCompatActivity {
         registerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                registerUser();
+                if (isConnectedToInternet()) {
+                    registerUser();
+                } else {
+                    // alert offline dialog
+                    new AlertDialog.Builder(RegistrationActivity.this)
+                        .setTitle("CebuApp")
+                        .setMessage("Please connect to the internet to register.")
+                        .setPositiveButton("Ok", null)
+                        .create().show();
+                }
             }
         });
 
@@ -71,6 +84,13 @@ public class RegistrationActivity extends AppCompatActivity {
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
     }
 
+    private void showOkAlert(String msg) {
+        new AlertDialog.Builder(RegistrationActivity.this)
+                .setTitle("CebuApp")
+                .setMessage(msg)
+                .setNegativeButton(android.R.string.ok, null)
+                .create().show();
+    }
 
     private void registerUser() {
         String fullname = inputFullname.getText().toString().trim();
@@ -170,5 +190,15 @@ public class RegistrationActivity extends AppCompatActivity {
                     }
                 });
 
+    }
+
+    private boolean isConnectedToInternet() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED
+                || connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

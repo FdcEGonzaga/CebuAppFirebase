@@ -7,8 +7,10 @@ import java.io.Serializable;
 public class JobPosts implements Serializable {
     @Exclude
     private String key;
-    private String jobPostTitle;
+    private Boolean approved;
+    private String jobAuthor;
     private String jobPostImg;
+    private String jobPostTitle;
     private String jobPostDescription;
     private String jobPostPosted;
     private String jobPostYearExp;
@@ -18,12 +20,16 @@ public class JobPosts implements Serializable {
     private String jobPostJobField;
     private String jobPostProvince;
     private String jobPostLink;
+    private Integer spinnerPos;
 
     public JobPosts() {}
 
-    public JobPosts(String jobPostTitle, String jobPostDescription, String jobPostPosted, String jobPostYearExp,
+    public JobPosts(Boolean approved, String jobAuthor, String jobPostImg, String jobPostTitle, String jobPostDescription, String jobPostPosted, String jobPostYearExp,
                     String jobPostSalary, String jobPostCompany, String jobPostCompanyDetails, String jobPostJobField,
-                    String jobPostProvince, String jobPostLink) {
+                    String jobPostProvince, String jobPostLink, Integer spinnerPos) {
+        this.approved = approved;
+        this.jobAuthor = jobAuthor;
+        this.jobPostImg = jobPostImg;
         this.jobPostTitle = jobPostTitle;
         this.jobPostDescription = jobPostDescription;
         this.jobPostPosted = jobPostPosted;
@@ -34,6 +40,31 @@ public class JobPosts implements Serializable {
         this.jobPostJobField = jobPostJobField;
         this.jobPostProvince = jobPostProvince;
         this.jobPostLink = jobPostLink;
+        this.spinnerPos = spinnerPos;
+    }
+
+    public String getJobAuthor() {
+        return jobAuthor;
+    }
+
+    public void setJobAuthor(String jobAuthor) {
+        this.jobAuthor = jobAuthor;
+    }
+
+    public Integer getSpinnerPos() {
+        return spinnerPos;
+    }
+
+    public void setSpinnerPos(Integer spinnerPos) {
+        this.spinnerPos = spinnerPos;
+    }
+
+    public Boolean getApproved() {
+        return approved;
+    }
+
+    public void setApproved(Boolean approved) {
+        this.approved = approved;
     }
 
     public String getKey() {

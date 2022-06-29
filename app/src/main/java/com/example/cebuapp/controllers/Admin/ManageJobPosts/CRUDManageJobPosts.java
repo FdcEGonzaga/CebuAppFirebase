@@ -20,12 +20,14 @@ public class CRUDManageJobPosts {
         return databaseReference.orderByKey();
     }
 
-    public Query getByCategory(String category) {
-        return databaseReference.orderByChild("jobPostJobField").equalTo(category);
+    public Query getSearchedWord(String searchWord) {
+        return databaseReference.orderByChild("jobPostTitle")
+                .startAt(searchWord).endAt(searchWord + "\uf8ff");
     }
 
     public Query getAllApproved(Boolean isApproved) {
-        return databaseReference.orderByChild("jobPostApproved").equalTo(isApproved);
+        return databaseReference.orderByChild("approved")
+                .equalTo(isApproved);
     }
 
     public Task<Void> add(JobPosts jobs) {

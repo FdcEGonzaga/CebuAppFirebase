@@ -5,12 +5,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.cebuapp.R;
 import com.example.cebuapp.controllers.User.Account.ChangePassActivity;
+import com.example.cebuapp.Helper.HelperUtilities;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -29,12 +32,13 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private LinearLayout loginForm, noInternet;
     private EditText inputEmail, inputPassword;
     private Button btnLogin;
     private TextView linkregister, linkchangepass;
     private FirebaseAuth mAuth;
     private ProgressBar progressBar;
-    private Intent intent;
+
 
     @Override
     public void onStart() {
@@ -51,7 +55,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             // alert offline dialog
             new AlertDialog.Builder(LoginActivity.this)
             .setTitle("CebuApp")
-            .setMessage("You're offline. Do you want to login as offline?")
+            .setMessage("You're offline. Do you want to continue?")
+            .setPositiveButton("Yes", null)
             .setNegativeButton("No", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -60,7 +65,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     System.exit(1);
                 }
             })
-            .setPositiveButton("Yes", null)
             .create().show();
         }
     }
@@ -70,46 +74,30 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        mAuth = FirebaseAuth.getInstance();
         inputEmail = findViewById(R.id.inputEmail);
         inputPassword = findViewById(R.id.inputPassword);
         btnLogin = findViewById(R.id.btnLogin);
         linkchangepass = findViewById(R.id.linkchangepass);
         linkregister = findViewById(R.id.linkregister);
         progressBar = findViewById(R.id.progressBar);
+        loginForm = findViewById(R.id.loginForm);
+        noInternet = findViewById(R.id.noInternet);
 
+        // others
         btnLogin.setOnClickListener(this);
         linkchangepass.setOnClickListener(this);
         linkregister.setOnClickListener(this);
-
-        mAuth = FirebaseAuth.getInstance();
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.linkchangepass:
-                if (!isConnectedToInternet()) {
-                    // alert offline dialog
-                    new AlertDialog.Builder(LoginActivity.this)
-                            .setTitle("CebuApp")
-                            .setMessage("To reset your password, please connect to the internet.")
-                            .setPositiveButton("Ok", null)
-                            .create().show();
-                } else {
-                    startActivity(new Intent(LoginActivity.this, ChangePassActivity.class));
-                }
+                startActivity(new Intent(LoginActivity.this, ChangePassActivity.class));
                 break;
             case R.id.linkregister:
-                if (!isConnectedToInternet()) {
-                    // alert offline dialog
-                    new AlertDialog.Builder(LoginActivity.this)
-                            .setTitle("CebuApp")
-                            .setMessage("To register an account, please connect to the internet.")
-                            .setPositiveButton("Ok", null)
-                            .create().show();
-                } else {
-                    startActivity(new Intent(LoginActivity.this, RegistrationActivity.class));
-                }
+                startActivity(new Intent(LoginActivity.this, RegistrationActivity.class));
                 break;
             case R.id.btnLogin:
                 loginUser();
@@ -147,7 +135,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         // check if connected to internet
         if (isConnectedToInternet()) {
-            // firebase login
             btnLogin.setEnabled(false);
             progressBar.setVisibility(View.VISIBLE);
             mAuth.signInWithEmailAndPassword(loginEmail, loginPass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -177,7 +164,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     } else {
                         btnLogin.setEnabled(true);
                         progressBar.setVisibility(View.INVISIBLE);
-                        showOkAlert("Login failed, please try again.");
+                        HelperUtilities.showOkAlert(LoginActivity.this, "Login failed, please try again.");
                     }
                 }
             });
@@ -189,21 +176,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    if ((loginEmail.equals("elmer@gmail.com") && loginPass.equals("admin123"))
-                    || (loginEmail.equals("admin@gmail.com") && loginPass.equals("admin123"))) {
-                        btnLogin.setEnabled(true);
-                        progressBar.setVisibility(View.INVISIBLE);
-                        Toast.makeText(getApplicationContext(), "Logged in as offline successfully!",
-                                Toast.LENGTH_LONG).show();
-                        intent = new Intent(getApplicationContext(), HomeActivity.class);
-                        intent.putExtra("loginEmail", loginEmail);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        btnLogin.setEnabled(true);
-                        progressBar.setVisibility(View.INVISIBLE);
-                        showOkAlert("Failed offline login, wrong credentials.");
-                    }
+                    HelperUtilities.showNoInternetAlert(LoginActivity.this);
                 }
             }, 1000);
         }
@@ -217,14 +190,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         } else {
             return false;
         }
-    }
-
-    private void showOkAlert(String msg) {
-        new AlertDialog.Builder(LoginActivity.this)
-                .setTitle("CebuApp")
-                .setMessage(msg)
-                .setNegativeButton(android.R.string.ok, null)
-                .create().show();
     }
 
     @Override

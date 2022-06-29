@@ -54,7 +54,7 @@
                 android:maxLines="2"
                 android:text="@string/news_sample_text"
                 android:textColor="@color/darkBlue"
-                android:textSize="22sp"
+                android:textSize="20sp"
                 android:textStyle="bold">
 
             </TextView>
