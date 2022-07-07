@@ -3,6 +3,7 @@ package com.example.cebuapp.controllers.Admin.ManageJobPosts;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -29,15 +30,19 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.cebuapp.Helper.DataFetcher;
 import com.example.cebuapp.Helper.HelperUtilities;
 import com.example.cebuapp.Helper.ShowImageUrl;
 import com.example.cebuapp.R;
+import com.example.cebuapp.controllers.User.JobPosts.JobaPostsActivity;
+import com.example.cebuapp.controllers.User.TouristSpots.SpotsActivity;
 import com.example.cebuapp.model.JobPosts;
 import com.example.cebuapp.controllers.HomeActivity;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -75,7 +80,7 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
             jp_company_dets_input;
     private String jobPostImgVal, jobPostTitleVal, jobPostDescVal, jobPostPostedVal, jobPostExpVal, jobPostSalaryVal,
             jobPostProvinceVal, jobPostCompanyVal, jobPostCompanyDetsVal, jobPostFieldsVal, jobPostLinkVal;
-    private Boolean jobPostApproveVal;
+    private Boolean jobPostApproveVal, errors;
     private JobPosts jobPostsData;
     private Spinner jp_approve_spinner;
     private ScrollView add_edit_form;
@@ -110,12 +115,17 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
     private Intent intent;
     private ProgressDialog dialog;
 
+    // manager
+    private LinearLayoutManager manager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_job_posts);
 
         if (isConnectedToInternet()) {
+            editJobPost = (JobPosts) getIntent().getSerializableExtra("jobFieldEdit");
+
             castComponents();
             spinnerComponents();
             setSpinner();
@@ -123,7 +133,6 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
             loadAllJobPosts();
 
             // check intent extra for editing job field
-            editJobPost = (JobPosts) getIntent().getSerializableExtra("jobFieldEdit");
             if (editJobPost != null) {
                 // show form and hide rv
                 add_edit_form.setVisibility(View.VISIBLE);
@@ -152,13 +161,22 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
     }
 
     private void setListeners() {
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+
         // check recyclerview contents
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                int totalItem = linearLayoutManager.getItemCount();
-                int lastVisible = linearLayoutManager.findLastCompletelyVisibleItemPosition();
+                manager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                manager.setReverseLayout(true);
+                manager.setStackFromEnd(true);
+                int totalItem = manager.getItemCount();
+                int lastVisible = manager.findLastCompletelyVisibleItemPosition();
                 if (totalItem < lastVisible+3) {
                     if (!isLoadMore) {
                         isLoadMore = true;
@@ -182,7 +200,6 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
             jobPostProvinceVal = provinceSpinner.getSelectedItem().toString().trim();
             String isPublish = jp_approve_spinner.getSelectedItem().toString().trim();
             jobPostApproveVal = (isPublish.equals("Publish")) ? true : false;
-            validateInputs();
 
             // save data ang upload image
             saveDataAndUploadImage(editJobPost);
@@ -198,8 +215,6 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
             // hide main btns
             addNewBtn.setVisibility(View.INVISIBLE);
             backBtn.setVisibility(View.INVISIBLE);
-            // set default img
-            jp_img_input.setImageResource(R.drawable.logo);
             // show form and hide rv
             add_edit_form.setVisibility(View.VISIBLE);
             swipeRefreshLayout.setVisibility(View.GONE);
@@ -207,12 +222,13 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
 
         // cancel btn
         cancel_btn.setOnClickListener(v -> {
-            // show main btns
-            addNewBtn.setVisibility(View.VISIBLE);
-            backBtn.setVisibility(View.VISIBLE);
-            // hide form and show rv
-            add_edit_form.setVisibility(View.GONE);
-            swipeRefreshLayout.setVisibility(View.VISIBLE);
+            String actionVal = "";
+            if (jp_action_btn.getText().equals("ADD")) {
+                actionVal = "adding";
+            } else {
+                actionVal = "editing";
+            }
+            isCancelAdding(actionVal);
         });
 
         // back to home btn
@@ -268,7 +284,9 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
         // showing the recycler view
-        LinearLayoutManager manager = new LinearLayoutManager(this);
+        manager = new LinearLayoutManager(this);
+        manager.setReverseLayout(true);
+        manager.setStackFromEnd(true);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(manager);
         adapter = new ManageJobPostsRVAdapter(this);
@@ -285,52 +303,6 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
         crudJobPosts = new CRUDManageJobPosts();
         dialog = new ProgressDialog(this);
         dialog.setCanceledOnTouchOutside(false);
-
-    }
-
-    private void validateInputs() {
-        // validate inputs
-        if (jobPostTitleVal.isEmpty()) {
-            jp_title_input.setError("Job Title is required.");
-            jp_title_input.requestFocus();
-            return;
-        }
-
-        if (jobPostDescVal.isEmpty()) {
-            jp_desc_input.setError("Job Description is required.");
-            jp_desc_input.requestFocus();
-            return;
-        }
-
-        if (jobPostExpVal.isEmpty()) {
-            jp_exp_input.setError("Job Experience is required.");
-            jp_exp_input.requestFocus();
-            return;
-        }
-
-        if (jobPostSalaryVal.isEmpty()) {
-            jp_salary_input.setError("Job salary offer is required.");
-            jp_salary_input.requestFocus();
-            return;
-        }
-
-        if (jobPostLinkVal.isEmpty()) {
-            jp_link_input.setError("Job link is required.");
-            jp_link_input.requestFocus();
-            return;
-        }
-
-        if (jobPostCompanyVal.isEmpty()) {
-            jp_company_input.setError("Company name is required.");
-            jp_company_input.requestFocus();
-            return;
-        }
-
-        if (jobPostCompanyDetsVal.isEmpty()) {
-            jp_company_dets_input.setError("Company description is required.");
-            jp_company_dets_input.requestFocus();
-            return;
-        }
 
     }
 
@@ -362,10 +334,67 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
     }
 
     public void saveDataAndUploadImage(JobPosts editJobPost) {
-        dialog.setTitle("Saving Job Post data...");
-        dialog.show();
+        // validate inputs
+        errors = false;
+        if (jobPostCompanyVal.isEmpty()) {
+            jp_company_input.setError("Company name is required.");
+            jp_company_input.requestFocus();
+            errors = true;
+            return;
+        }
 
-        if (imageUri != null) {
+        if (jobPostCompanyDetsVal.isEmpty()) {
+            jp_company_dets_input.setError("Company description is required.");
+            jp_company_dets_input.requestFocus();
+            errors = true;
+            return;
+        }
+
+        if (jp_img_input.getResources().equals(R.drawable.custom_input_field) || imageUri == null) {
+            HelperUtilities.showOkAlert(ManageJobsPostsActivity.this, "Please select an Image.");
+            errors = true;
+            return;
+        }
+
+        if (jobPostTitleVal.isEmpty()) {
+            jp_title_input.setError("Job Title is required.");
+            jp_title_input.requestFocus();
+            errors = true;
+            return;
+        }
+
+        if (jobPostDescVal.isEmpty()) {
+            jp_desc_input.setError("Job Description is required.");
+            jp_desc_input.requestFocus();
+            errors = true;
+            return;
+        }
+
+        if (jobPostExpVal.isEmpty()) {
+            jp_exp_input.setError("Job Experience is required.");
+            jp_exp_input.requestFocus();
+            errors = true;
+            return;
+        }
+
+        if (jobPostSalaryVal.isEmpty()) {
+            jp_salary_input.setError("Job salary offer is required.");
+            jp_salary_input.requestFocus();
+            errors = true;
+            return;
+        }
+
+        if (jobPostLinkVal.isEmpty()) {
+            jp_link_input.setError("Job link is required.");
+            jp_link_input.requestFocus();
+            errors = true;
+            return;
+        }
+
+        if (!errors && errors.equals(false)) {
+            dialog.setTitle("Saving Job Post data...");
+            dialog.show();
+
             StorageReference storageReference2 = storageReference.child(System.currentTimeMillis() + "." + GetFileExtension(imageUri));
             UploadTask uploadTask = storageReference2.putFile(imageUri);
             uploadTask.addOnSuccessListener((OnSuccessListener) (taskSnapshot) -> {
@@ -377,17 +406,16 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
                     jobPostImgVal = uri.toString();
                     jobPostPostedVal = HelperUtilities.getCurrentDate();
                     String jobAuthorVal = firebaseUser.getEmail();
-                    Integer spinnerPos = 0;
 
                     jobPostsData = new JobPosts(jobPostApproveVal, jobAuthorVal, jobPostImgVal, jobPostTitleVal, jobPostDescVal, jobPostPostedVal, jobPostExpVal,
                             jobPostSalaryVal, jobPostCompanyVal, jobPostCompanyDetsVal, jobPostFieldsVal,
-                            jobPostProvinceVal, jobPostLinkVal, spinnerPos);
+                            jobPostProvinceVal, jobPostLinkVal);
 
-                    dialog.dismiss();
                     Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
+                            dialog.dismiss();
                             // editing Job post
                             if (editJobPost != null && jp_action_btn.getText().equals("EDIT")) {
                                 HashMap<String, Object> hashMap = new HashMap<>();
@@ -437,9 +465,6 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
                     }, 300);
                 });
             });
-        } else {
-            dialog.dismiss();
-            Toast.makeText(ManageJobsPostsActivity.this, "Please select an Image.", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -457,14 +482,6 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
         provinceSpinnerAdapter = new ArrayAdapter<String>(ManageJobsPostsActivity.this,
                 android.R.layout.simple_spinner_dropdown_item, provinceSpinnerList);
         provinceSpinner.setAdapter(provinceSpinnerAdapter);
-
-        // approval spinner
-        ArrayList<String> approveList = new ArrayList<>();
-        approveList.add("Publish");
-        approveList.add("Pending");
-        ArrayAdapter<String> approveSpinnerAdapter = new ArrayAdapter<String>(ManageJobsPostsActivity.this,
-                android.R.layout.simple_spinner_dropdown_item, approveList);
-        jp_approve_spinner.setAdapter(approveSpinnerAdapter);
     }
 
     private void setSpinner() {
@@ -476,6 +493,10 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
                     for(DataSnapshot data : uniqueKey.getChildren()){
                         jobFieldSpinnerList.add(data.getValue().toString());
                     }
+                }
+                if (editJobPost != null && editJobPost.getJobPostJobField() != null) {
+                    int fpos = jobFieldSpinnerAdapter.getPosition(editJobPost.getJobPostJobField());
+                    jobFieldSpinner.setSelection(fpos);
                 }
                 jobFieldSpinnerAdapter.notifyDataSetChanged();
             }
@@ -493,12 +514,30 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
                         provinceSpinnerList.add(data.getValue().toString());
                     }
                 }
+                if (editJobPost != null && editJobPost.getJobPostProvince() != null) {
+                    int ppos = provinceSpinnerAdapter.getPosition(editJobPost.getJobPostProvince());
+                    provinceSpinner.setSelection(ppos);
+                }
                 provinceSpinnerAdapter.notifyDataSetChanged();
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
             }
         });
+
+        // approval spinner
+        ArrayList<String> approveList = new ArrayList<>();
+        approveList.add("Publish");
+        approveList.add("Hidden");
+        ArrayAdapter<String> approveSpinnerAdapter = new ArrayAdapter<String>(ManageJobsPostsActivity.this,
+                android.R.layout.simple_spinner_dropdown_item, approveList);
+        jp_approve_spinner.setAdapter(approveSpinnerAdapter);
+        if (editJobPost != null) {
+            String isPublished = (editJobPost.getApproved().equals(true)) ? "Publish" : "Hidden";
+            int apos = approveSpinnerAdapter.getPosition(isPublished);
+            jp_approve_spinner.setSelection(apos);
+        }
+
     }
 
     private void loadAllJobPosts() {
@@ -526,10 +565,10 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
                     adapter.setItems(jobFieldsList);
                     adapter.notifyDataSetChanged();
                     isLoadMore = false;
-                    swipeRefreshLayout.setRefreshing(false);
                     jp_is_empty_list.setVisibility(View.GONE);
                     swipeRefreshLayout.setVisibility(View.VISIBLE);
                 }
+                swipeRefreshLayout.setRefreshing(false);
                 dialog.dismiss();
             }
 
@@ -552,6 +591,36 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
         jp_company_input.setText("");
         jp_company_dets_input.setText("");
         jp_action_btn.setText("ADD");
+    }
+
+    private void isCancelAdding(String actionVal) {
+        new AlertDialog.Builder(ManageJobsPostsActivity.this)
+            .setTitle("CebuApp")
+            .setMessage("Are you sure you want to cancel " + actionVal + " Job Post?")
+            .setCancelable(false)
+            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface arg0, int arg1) {
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            resetFormInputs();
+                            // show main btns
+                            addNewBtn.setVisibility(View.VISIBLE);
+                            backBtn.setVisibility(View.VISIBLE);
+                            // hide form and show rv
+                            add_edit_form.setVisibility(View.GONE);
+                            swipeRefreshLayout.setVisibility(View.VISIBLE);
+                        }
+                    }, 300);
+                }
+            })
+            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            }).create().show();
     }
 
     private boolean isConnectedToInternet() {

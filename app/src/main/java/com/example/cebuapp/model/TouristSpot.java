@@ -8,7 +8,8 @@ public class TouristSpot implements Serializable {
     @Exclude
     private String key;
     private Boolean approved;
-    private String touristAuthor;
+
+    private String touristSpotAuthor;
     private String touristSpotImg;
     private String touristSpotAddress;
     private String touristSpotContactEmail;
@@ -17,14 +18,13 @@ public class TouristSpot implements Serializable {
     private String touristSpotPosted;
     private String touristSpotProvince;
     private String touristSpotTitle;
-    private Integer pos;
 
     public TouristSpot() {}
-    public TouristSpot(Boolean approved, String touristAuthor, String touristSpotImg, String touristSpotAddress, String touristSpotContactEmail,
+    public TouristSpot(Boolean approved, String touristSpotAuthor, String touristSpotImg, String touristSpotAddress, String touristSpotContactEmail,
                        String touristSpotContactNum, String touristSpotDescription, String touristSpotPosted, String touristSpotProvince,
-                       String touristSpotTitle, Integer pos) {
+                       String touristSpotTitle) {
         this.approved = approved;
-        this.touristAuthor = touristAuthor;
+        this.touristSpotAuthor = touristSpotAuthor;
         this.touristSpotImg = touristSpotImg;
         this.touristSpotAddress = touristSpotAddress;
         this.touristSpotContactEmail = touristSpotContactEmail;
@@ -33,23 +33,14 @@ public class TouristSpot implements Serializable {
         this.touristSpotPosted = touristSpotPosted;
         this.touristSpotProvince = touristSpotProvince;
         this.touristSpotTitle = touristSpotTitle;
-        this.pos = pos;
     }
 
-    public String getTouristAuthor() {
-        return touristAuthor;
+    public String getTouristSpotAuthor() {
+        return touristSpotAuthor;
     }
 
-    public void setTouristAuthor(String touristAuthor) {
-        this.touristAuthor = touristAuthor;
-    }
-
-    public Integer getPos() {
-        return pos;
-    }
-
-    public void setPos(Integer pos) {
-        this.pos = pos;
+    public void setTouristSpotAuthor(String touristSpotAuthor) {
+        this.touristSpotAuthor = touristSpotAuthor;
     }
 
     public Boolean getApproved() {

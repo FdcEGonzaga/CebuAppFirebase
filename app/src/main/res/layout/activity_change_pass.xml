@@ -10,25 +10,23 @@
     android:gravity="center_vertical">
 
     <ImageView
-        android:layout_width="150dp"
-        android:layout_height="150dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:src="@drawable/logo"
         android:layout_gravity="center"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"
         />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="20dp"
+        android:padding="30dp"
         android:orientation="vertical">
 
         <EditText
             android:id="@+id/inputResetEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text"
+            android:inputType="textEmailAddress"
             android:hint="@string/prompt_email"
             android:textColorHint="@color/lighterBlue"
             android:textColor="@color/whiter"
@@ -42,7 +40,6 @@
             android:singleLine="true"
             />
 
-
         <Button
             android:id="@+id/btnResetPass"
             android:layout_width="match_parent"
@@ -54,19 +51,54 @@
             android:padding="5dp"
             android:layout_centerHorizontal="true"
             android:background="@drawable/custom_btn_rounded"
+            android:layout_marginBottom="20dp"
             />
-    </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <ProgressBar
-            android:id="@+id/progressBar"
+        <!-- login link -->
+        <LinearLayout
+            android:id="@+id/layoutsentrequest"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="invisible"
-            android:layout_gravity="center"/>
+            android:orientation="horizontal"
+            android:visibility="gone"
+            android:weightSum="3">
+
+            <TextView
+                android:id="@+id/txtsentrequest"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center|right"
+                android:text="Already sent a request?"
+                android:textSize="13sp"
+                android:paddingRight="10dp"
+                android:textColor="@color/lighterBlue"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/linklogin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Login now"
+                android:textSize="13sp"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:layout_weight="2" />
+        </LinearLayout>
+
+        <!-- progress bar-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                android:layout_gravity="center"/>
+
+        </LinearLayout>
 
     </LinearLayout>
+
 </LinearLayout>

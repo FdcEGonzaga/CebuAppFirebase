@@ -9,9 +9,6 @@
     android:background="@drawable/sinulogbg2"
     tools:context=".controllers.User.LatestNews.NewsDetailsActivity">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -37,75 +34,90 @@
                 android:layout_marginBottom="10dp"
                 >
 
-                <LinearLayout
+                <ScrollView
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="10dp"
-                    android:layout_margin="10dp">
-
-                    <TextView
-                        android:id="@+id/show_news_title"
+                    android:layout_height="match_parent">
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Title of the news will be here."
-                        android:textColor="@color/blue"
-                        android:textSize="25dp"
-                        android:textStyle="bold"
-                        android:layout_marginTop="10dp"
-                        android:layout_marginBottom="10dp"/>
+                        android:orientation="vertical"
+                        android:padding="10dp"
+                        android:layout_margin="10dp">
 
-                    <ImageView
-                        android:id="@+id/show_news_img"
-                        android:layout_width="match_parent"
-                        android:layout_height="250dp"
-                        android:src="@drawable/logo"
-                        android:layout_marginBottom="10dp"/>
+                        <TextView
+                            android:id="@+id/show_news_title"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Title of the news will be here."
+                            android:textColor="@color/blue"
+                            android:textSize="25dp"
+                            android:textStyle="bold"
+                            android:layout_marginTop="10dp"
+                            android:layout_marginBottom="10dp"/>
 
-                    <TextView
-                        android:id="@+id/show_news_author"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/blue"
-                        android:text="Author: Elmer Gonzaga"
-                        android:gravity="center"
-                        android:textSize="16sp"
-                        android:layout_marginBottom="10dp"/>
+                        <ImageView
+                            android:id="@+id/show_news_img"
+                            android:layout_width="match_parent"
+                            android:layout_height="250dp"
+                            android:scaleType="centerCrop"
+                            android:adjustViewBounds="true"
+                            android:background="@drawable/custom_input_field"
+                            android:layout_marginBottom="20dp"/>
 
-                    <TextView
-                        android:id="@+id/show_news_time"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/darkBlue"
-                        android:text="Monday, May 18, 2022"
-                        android:gravity="center"
-                        android:textSize="13sp"
-                        android:layout_marginBottom="10dp"/>
+                        <TextView
+                            android:id="@+id/show_news_author_label"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/darkBlue"
+                            android:text="AUTHOR"
+                            android:textSize="10sp"/>
+                        <TextView
+                            android:id="@+id/show_news_author"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/blue"
+                            android:text="Elmer Gonzaga"
+                            android:textSize="16sp"
+                            android:layout_marginBottom="15dp"/>
 
-                    <TextView
-                        android:id="@+id/show_news_detail"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:text="@string/news_sample_text"
-                        android:textColor="@color/blue"
-                        android:textSize="16sp" />
+                        <TextView
+                            android:id="@+id/show_news_time_label"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/darkBlue"
+                            android:text="DATE POSTED"
+                            android:textSize="10sp"/>
+                        <TextView
+                            android:id="@+id/show_news_time"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/blue"
+                            android:text="Monday, May 18, 2022"
+                            android:textSize="13sp"
+                            android:layout_marginBottom="15dp"/>
 
-                    <TextView
-                        android:id="@+id/show_news_content"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:text="@string/news_sample_text"
-                        android:textColor="@color/blue"
-                        android:textSize="16sp" />
+                        <TextView
+                            android:id="@+id/show_news_detail_label"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/darkBlue"
+                            android:text="CONTENT:"
+                            android:textSize="10sp"/>
+                        <TextView
+                            android:id="@+id/show_news_detail"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/short_sample_text"
+                            android:textColor="@color/blue"
+                            android:textSize="16sp"
+                            android:layout_marginBottom="15dp"/>
 
-                   </LinearLayout>
+                       </LinearLayout>
+                </ScrollView>
 
             </androidx.cardview.widget.CardView>
 
         </LinearLayout>
 
-    </ScrollView>
 
 </LinearLayout>

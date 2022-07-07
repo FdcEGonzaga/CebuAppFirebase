@@ -78,7 +78,7 @@
         android:paddingTop="15dp"
         android:paddingRight="30dp"
         android:paddingBottom="15dp"
-        android:text="NEXT"
+        android:text="FINISH"
         android:textColor="@color/blue"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"

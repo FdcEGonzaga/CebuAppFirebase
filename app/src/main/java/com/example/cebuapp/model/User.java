@@ -1,16 +1,25 @@
 package com.example.cebuapp.model;
 
 public class User {
-    public String fullname, email, phone;
+    public String fullname, email, phone, photo;
     public Integer role;
 
     public User() {}
 
-    public User(String fullname, String email, String phone, Integer role) {
+    public User(String photo, String fullname, String email, String phone, Integer role) {
+        this.photo = photo;
         this.fullname = fullname;
         this.email = email;
         this.phone = phone;
         this.role = role;
+    }
+
+    public String getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
     }
 
     public String getFullname() {

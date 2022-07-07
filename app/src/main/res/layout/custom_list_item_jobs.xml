@@ -4,9 +4,7 @@
     android:id="@+id/cardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginLeft="10dp"
-    android:layout_marginRight="10dp"
-    android:layout_marginBottom="20dp"
+    android:layout_margin="10dp"
     app:cardBackgroundColor="@color/whiter"
     app:cardCornerRadius="10dp"
     app:cardElevation="5dp"
@@ -16,58 +14,125 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="@drawable/custom_bg_rounded_white"
-        android:weightSum="3">
-
-        <LinearLayout
-            android:layout_width="15dp"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:background="@color/lightBlue"
-            android:layout_weight="1">
-
-        </LinearLayout>
-
+        android:weightSum="2">
+        <!-- Data -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
             android:orientation="vertical"
-            android:layout_weight="1">
+            android:background="@drawable/custom_bg_rounded_white"
+            android:layout_weight="1"
+            android:weightSum="2">
 
-            <TextView
-                android:id="@+id/listTitle"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:text="@string/news_sample_text"
-                android:textColor="@color/darkBlue"
-                android:textSize="20sp"
-                android:textStyle="bold">
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="3"
+                android:orientation="horizontal">
 
-            </TextView>
-            <TextView
-                android:id="@+id/listDesc1"
+                <ImageView
+                    android:id="@+id/listCompanyImg"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:scaleType="centerCrop"
+                    android:adjustViewBounds="true"
+                    android:background="@color/blue"
+                    android:contentDescription="FOOD AREA IMAGE"
+                    android:src="@drawable/logo" />
+
+                <TextView
+                    android:id="@+id/listCompanyName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_gravity="center_vertical"
+                    android:textSize="13sp"
+                    android:textColor="@color/blue"
+                    android:textStyle="bold"
+                    android:text="Company name"
+                    android:maxLines="1"
+                    android:layout_weight="1"/>
+
+                <ImageView
+                    android:id="@+id/listMenu"
+                    android:layout_gravity="right"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:padding="5dp"
+                    android:src="@drawable/ic_heart"
+                    android:gravity="top"
+                    android:textSize="20sp"
+                    android:visibility="visible"/>
+
+                <ImageView
+                    android:id="@+id/listMenu2"
+                    android:layout_gravity="right"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:padding="5dp"
+                    android:src="@drawable/ic_hearted"
+                    android:gravity="top"
+                    android:textSize="20sp"
+                    android:visibility="gone"/>
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:textSize="13sp"
-                android:textColor="@color/blue"
-                android:textStyle="bold"
-                android:text="@string/news_sample_text"
-                android:maxLines="1">
+                android:layout_marginRight="10dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginBottom="10dp"
+                android:orientation="vertical">
 
-            </TextView>
-            <TextView
-                android:id="@+id/listDesc2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="13sp"
-                android:textColor="@color/blue"
-                android:text="@string/news_sample_text"
-                android:maxLines="1">
 
-            </TextView>
+                <TextView
+                    android:id="@+id/listTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:text="@string/news_sample_text"
+                    android:textColor="@color/darkBlue"
+                    android:textSize="20sp"
+                    android:textStyle="bold">
+
+                </TextView>
+                <TextView
+                    android:id="@+id/listDesc1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:textSize="13sp"
+                    android:textColor="@color/blue"
+                    android:text="@string/news_sample_text"
+                    android:maxLines="1">
+
+                </TextView>
+                <TextView
+                    android:id="@+id/listDesc2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textColor="@color/blue"
+                    android:text="@string/news_sample_text"
+                    android:maxLines="1"
+                    android:layout_marginBottom="3dp"/>
+
+                <TextView
+                    android:id="@+id/listDesc3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textColor="@color/gray"
+                    android:text="Date posted"
+                    android:maxLines="1">
+
+                </TextView>
+
+            </LinearLayout>
 
         </LinearLayout>
 

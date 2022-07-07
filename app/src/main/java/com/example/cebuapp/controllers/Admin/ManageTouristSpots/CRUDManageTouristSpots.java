@@ -28,6 +28,11 @@ public class CRUDManageTouristSpots {
         return databaseReference.orderByChild("approved").equalTo(true);
     }
 
+    public Query getOwnedTouristSpots(String userEmail) {
+        return databaseReference.orderByChild("touristSpotAuthor")
+                .equalTo(userEmail);
+    }
+
     public Task<Void> add(TouristSpot touristSpots) {
         return databaseReference.push().setValue(touristSpots);
     }

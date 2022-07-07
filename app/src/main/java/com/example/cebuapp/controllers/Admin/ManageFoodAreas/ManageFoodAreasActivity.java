@@ -3,6 +3,7 @@ package com.example.cebuapp.controllers.Admin.ManageFoodAreas;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -28,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -73,7 +75,7 @@ public class ManageFoodAreasActivity extends AppCompatActivity {
     private EditText title_input, desc_input, address_input, contact_email_input, contact_num_input;
     private String foodAreaImgVal, foodAreaTitleVal, foodAreaDescVal, foodAreaAddressVal, foodAreaProvinceVal, foodAreaContactEmailVal,
             foodAreaContactNumVal, foodAreaPostedVal;
-    private Boolean foodAreaApproveVal;
+    private Boolean foodAreaApproveVal, errors;
     private Spinner approve_spinner;
 
     // Image uploading
@@ -105,6 +107,7 @@ public class ManageFoodAreasActivity extends AppCompatActivity {
     private boolean isLoadMore = false, isApproved = false;
     private String key = null;
     private FoodArea editFoodArea;
+    private LinearLayoutManager manager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,6 +115,8 @@ public class ManageFoodAreasActivity extends AppCompatActivity {
         setContentView(R.layout.activity_manage_foodareas);
 
         if (isConnectedToInternet()) {
+            editFoodArea = (FoodArea) getIntent().getSerializableExtra("foodAreaEdit");
+
             // cast components
             castComponents();
             setSpinners();
@@ -119,7 +124,6 @@ public class ManageFoodAreasActivity extends AppCompatActivity {
             loadData();
 
             // check intent extra for editing a food area
-            editFoodArea = (FoodArea) getIntent().getSerializableExtra("foodAreaEdit");
             if (editFoodArea != null) {
                 // show form and hide rv
                 add_edit_form.setVisibility(View.VISIBLE);
@@ -196,7 +200,9 @@ public class ManageFoodAreasActivity extends AppCompatActivity {
         dialog.setCanceledOnTouchOutside(false);
 
         // showing the recycler view
-        LinearLayoutManager manager = new LinearLayoutManager(this);
+        manager = new LinearLayoutManager(this);
+        manager.setReverseLayout(true);
+        manager.setStackFromEnd(true);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(manager);
         adapter = new ManageFoodAreasRVAdapter(this);
@@ -221,6 +227,11 @@ public class ManageFoodAreasActivity extends AppCompatActivity {
                         provinceSpinnerList.add(data.getValue().toString());
                     }
                 }
+                if (editFoodArea != null && editFoodArea.getFoodProvince() != null) {
+                    int ppos = provinceSpinnerAdapter.getPosition(editFoodArea.getFoodProvince());
+                    provinceSpinner.setSelection(ppos);
+                }
+                provinceSpinnerAdapter.notifyDataSetChanged();
                 provinceSpinnerAdapter.notifyDataSetChanged();
             }
 
@@ -233,28 +244,18 @@ public class ManageFoodAreasActivity extends AppCompatActivity {
         // approval spinner
         ArrayList<String> approveList = new ArrayList<>();
         approveList.add("Publish");
-        approveList.add("Pending");
+        approveList.add("Hidden");
         ArrayAdapter<String> approveSpinnerAdapter = new ArrayAdapter<>(ManageFoodAreasActivity.this,
                 android.R.layout.simple_spinner_dropdown_item, approveList);
         approve_spinner.setAdapter(approveSpinnerAdapter);
+        if (editFoodArea != null) {
+            String isPublished = (editFoodArea.getApproved().equals(true)) ? "Publish" : "Hidden";
+            int apos = approveSpinnerAdapter.getPosition(isPublished);
+            approve_spinner.setSelection(apos);
+        }
     }
 
     private void setListeners() {
-        // check recyclerview contents
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                int totalItem = linearLayoutManager.getItemCount();
-                int lastVisible = linearLayoutManager.findLastCompletelyVisibleItemPosition();
-                if (totalItem < lastVisible+3) {
-                    if (!isLoadMore) {
-                        isLoadMore = true;
-                    }
-                }
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        });
 
         img_input.setOnClickListener(v-> {
             choosingOfPicture();
@@ -272,7 +273,6 @@ public class ManageFoodAreasActivity extends AppCompatActivity {
             foodAreaContactNumVal = contact_num_input.getText().toString().trim();
             String isPublish = approve_spinner.getSelectedItem().toString().trim();
             foodAreaApproveVal = (isPublish.equals("Publish")) ? true : false;
-            validateInputs();
 
             // save data ang upload image
             saveDataAndUploadImage(editFoodArea);
@@ -285,20 +285,21 @@ public class ManageFoodAreasActivity extends AppCompatActivity {
             // hide main btns
             addNewBtn.setVisibility(View.INVISIBLE);
             backBtn.setVisibility(View.INVISIBLE);
-            // set default img
-            img_input.setImageResource(R.drawable.logo);
             // show form and hide rv
+            form_title.setText("Adding a Food Area");
             add_edit_form.setVisibility(View.VISIBLE);
             swipeRefreshLayout.setVisibility(View.GONE);
         });
 
         // cancel btn
         cancel_btn.setOnClickListener(v -> {
-            addNewBtn.setVisibility(View.VISIBLE);
-            backBtn.setVisibility(View.VISIBLE);
-            // hide form and show rv
-            add_edit_form.setVisibility(View.GONE);
-            swipeRefreshLayout.setVisibility(View.VISIBLE);
+            String actionVal = "";
+            if (action_btn.getText().equals("ADD")) {
+                actionVal = "adding";
+            } else {
+                actionVal = "editing";
+            }
+            isCancelAdding(actionVal);
         });
 
         // back to home btn
@@ -306,45 +307,31 @@ public class ManageFoodAreasActivity extends AppCompatActivity {
             intent = new Intent(ManageFoodAreasActivity.this, HomeActivity.class);
             startActivity(intent);
         });
-    }
 
-    private void validateInputs() {
-        // validate inputs
-        if (foodAreaTitleVal.isEmpty()) {
-            title_input.setError("Food Area title is required.");
-            title_input.requestFocus();
-            return;
-        }
+        // check recyclerview contents
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                manager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                manager.setReverseLayout(true);
+                manager.setStackFromEnd(true);
+                int totalItem = manager.getItemCount();
+                int lastVisible = manager.findLastCompletelyVisibleItemPosition();
+                if (totalItem < lastVisible+3) {
+                    if (!isLoadMore) {
+                        isLoadMore = true;
+                    }
+                }
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
 
-        if (foodAreaDescVal.isEmpty()) {
-            desc_input.setError("Food Area description is required.");
-            desc_input.requestFocus();
-            return;
-        }
-
-        if (foodAreaAddressVal.isEmpty()) {
-            address_input.setError("Food Area landmark is required.");
-            address_input.requestFocus();
-            return;
-        }
-
-        if (foodAreaContactEmailVal.isEmpty()) {
-            contact_email_input.setError("Food Area email is required.");
-            contact_email_input.requestFocus();
-            return;
-        }
-
-        if (!Patterns.EMAIL_ADDRESS.matcher(foodAreaContactEmailVal).matches()) {
-            contact_email_input.setError("Please provide a valid email.");
-            contact_email_input.requestFocus();
-            return;
-        }
-
-        if (foodAreaContactNumVal.isEmpty()) {
-            contact_email_input.setError("Food Area number is required.");
-            contact_num_input.requestFocus();
-            return;
-        }
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
     }
 
     private void choosingOfPicture() {
@@ -376,10 +363,67 @@ public class ManageFoodAreasActivity extends AppCompatActivity {
 
 
     private void saveDataAndUploadImage(FoodArea editFoodArea) {
-        dialog.setTitle("Saving Food Area data...");
-        dialog.show();
+        // validate inputs
+        errors = false;
+        if (foodAreaTitleVal.isEmpty()) {
+            title_input.setError("Food Area title is required.");
+            title_input.requestFocus();
+            errors = true;
+            return;
+        }
 
-        if (imageUri != null) {
+        if (img_input.getResources().equals(R.drawable.custom_input_field) || imageUri == null) {
+            HelperUtilities.showOkAlert(ManageFoodAreasActivity.this, "Please select an Image.");
+            errors = true;
+            return;
+        }
+
+        if (foodAreaDescVal.isEmpty()) {
+            desc_input.setError("Food Area description is required.");
+            desc_input.requestFocus();
+            errors = true;
+            return;
+        }
+
+        if (foodAreaAddressVal.isEmpty()) {
+            address_input.setError("Food Area landmark is required.");
+            address_input.requestFocus();
+            errors = true;
+            return;
+        }
+
+        if (foodAreaContactEmailVal.isEmpty()) {
+            contact_email_input.setError("Food Area email is required.");
+            contact_email_input.requestFocus();
+            errors = true;
+            return;
+        }
+
+        if (!Patterns.EMAIL_ADDRESS.matcher(foodAreaContactEmailVal).matches()) {
+            contact_email_input.setError("Please provide a valid email.");
+            contact_email_input.requestFocus();
+            errors = true;
+            return;
+        }
+
+        if (foodAreaContactNumVal.isEmpty()) {
+            contact_num_input.setError("Food Area number is required.");
+            contact_num_input.requestFocus();
+            errors = true;
+            return;
+        }
+
+        if (!HelperUtilities.isValidPhone(foodAreaContactNumVal)) {
+            contact_num_input.setError("Food Area number is invalid.");
+            contact_num_input.requestFocus();
+            errors = true;
+            return;
+        }
+
+        if (!errors && errors.equals(false)) {
+            dialog.setTitle("Saving Food Area data...");
+            dialog.show();
+
             StorageReference storageReference2 = storageReference.child(System.currentTimeMillis() +'.'+ GetFileExtension(imageUri));
             UploadTask uploadTask = storageReference2.putFile(imageUri);
             uploadTask.addOnSuccessListener((OnSuccessListener) (taskSnapshot) -> {
@@ -390,17 +434,17 @@ public class ManageFoodAreasActivity extends AppCompatActivity {
                     // construct img data
                     foodAreaImgVal = uri.toString();
                     foodAreaPostedVal = getCurrentDate();
-                    String foodAuthorVal = firebaseUser.getEmail();;
-                    Integer spinnerPos = 0;
+                    String foodAuthorVal = firebaseUser.getEmail();
 
                     FoodArea foodAreasData = new FoodArea(foodAreaApproveVal, foodAuthorVal, foodAreaImgVal, foodAreaAddressVal, foodAreaContactEmailVal, foodAreaContactNumVal,
-                            foodAreaDescVal, foodAreaPostedVal, foodAreaProvinceVal, foodAreaTitleVal, spinnerPos);
+                            foodAreaDescVal, foodAreaPostedVal, foodAreaProvinceVal, foodAreaTitleVal);
 
-                    dialog.dismiss();
                     Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
+                            dialog.dismiss();
+
                             // update
                             if (editFoodArea != null && action_btn.getText().equals("EDIT")) {
                                 HashMap<String, Object> hashMap = new HashMap<>();
@@ -458,7 +502,7 @@ public class ManageFoodAreasActivity extends AppCompatActivity {
         address_input.setText("");
         contact_email_input.setText("");
         contact_num_input.setText("");
-        action_btn.setText("Add");
+        action_btn.setText("ADD");
         add_edit_form.setVisibility(View.GONE);
         swipeRefreshLayout.setVisibility(View.VISIBLE);
         addNewBtn.setVisibility(View.VISIBLE);
@@ -508,6 +552,36 @@ public class ManageFoodAreasActivity extends AppCompatActivity {
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
+    }
+
+    private void isCancelAdding(String actionVal) {
+        new AlertDialog.Builder(ManageFoodAreasActivity.this)
+                .setTitle("CebuApp")
+                .setMessage("Are you sure you want to cancel " + actionVal + " Food Area?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                resetFormInputs();
+                                // show main btns
+                                addNewBtn.setVisibility(View.VISIBLE);
+                                backBtn.setVisibility(View.VISIBLE);
+                                // hide form and show rv
+                                add_edit_form.setVisibility(View.GONE);
+                                swipeRefreshLayout.setVisibility(View.VISIBLE);
+                            }
+                        }, 300);
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                }).create().show();
     }
 
     private boolean isConnectedToInternet() {

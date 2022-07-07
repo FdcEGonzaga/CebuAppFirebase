@@ -4,8 +4,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
@@ -29,6 +33,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -37,9 +42,11 @@ import android.widget.Toast;
 import com.example.cebuapp.R;
 import com.example.cebuapp.controllers.Admin.ManageFoodAreas.CRUDManageFoodAreas;
 import com.example.cebuapp.controllers.HomeActivity;
+import com.example.cebuapp.controllers.User.JobPosts.JobaPostsActivity;
 import com.example.cebuapp.controllers.User.TouristSpots.SpotsActivity;
 import com.example.cebuapp.model.FoodArea;
 import com.example.cebuapp.Helper.HelperUtilities;
+import com.example.cebuapp.model.TouristSpot;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -57,6 +64,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class FoodActivity extends AppCompatActivity {
+    private SwipeRefreshLayout swipeRefreshLayout;
     private FirebaseUser firebaseUser;
     private Intent intent;
     private TextView is_empty_list;
@@ -81,7 +89,6 @@ public class FoodActivity extends AppCompatActivity {
 
     // header
     private ImageButton backBtn, addBtn;
-    private Boolean isAdding = false;
 
     // LinearLayout
     private LinearLayout mainBody;
@@ -106,6 +113,10 @@ public class FoodActivity extends AppCompatActivity {
     private ImageView img_input;
     private StorageReference storageReference;
 
+    // sort manager
+    private LinearLayoutManager manager;
+    private ArrayList<FoodArea> foodList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,24 +124,25 @@ public class FoodActivity extends AppCompatActivity {
 
         if (isConnectedToInternet()) {
             castComponents();
+            searchWordListener();
             setListeners();
             formSpinnerComponents();
-
-            // set main spinner and search form
             mainProvinceSpinner();
-            searchWordListener();
 
             // user
             firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+            foodList = new ArrayList<>();
 
             // showing the recycler view
             FirebaseDatabase db = FirebaseDatabase.getInstance();
             databaseReference = db.getReference("cebuapp_food_areas");
             crudFoodAreas = new CRUDManageFoodAreas();
-            LinearLayoutManager manager = new LinearLayoutManager(this);
+            adapter = new FoodRVAdapter(this);
+            manager = new LinearLayoutManager(this);
+            manager.setReverseLayout(true);
+            manager.setStackFromEnd(true);
             recyclerView.setHasFixedSize(true);
             recyclerView.setLayoutManager(manager);
-            adapter = new FoodRVAdapter(this);
             recyclerView.setAdapter(adapter);
 
             // check extras
@@ -139,9 +151,41 @@ public class FoodActivity extends AppCompatActivity {
                 mainProvinceSpinner.setSelection(extras.getInt("provSpinPos"));
             }
         } else {
-            HelperUtilities.showNoInternetAlert(getApplicationContext());
+            HelperUtilities.showNoInternetAlert(FoodActivity.this);
         }
 
+    }
+
+    private void castComponents() {
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        dialog = new ProgressDialog(this);
+        dialog.setCanceledOnTouchOutside(false);
+        handler = new Handler();
+        mainProvinceSpinner = findViewById(R.id.food_spinner);
+
+        // form inputs
+        img_input = findViewById(R.id.img_input);
+        title_input = findViewById(R.id.title_input);
+        desc_input = findViewById(R.id.desc_input);
+        address_input = findViewById(R.id.address_input);
+        contact_email_input = findViewById(R.id.contact_email_input);
+        contact_num_input = findViewById(R.id.contact_num_input);
+        province_spinner = findViewById(R.id.province_spinner);
+
+        addFormBody = findViewById(R.id.add_form);
+        formAddBtn = findViewById(R.id.form_add_btn);
+        formCancelBtn = findViewById(R.id.form_cancel_btn);
+
+        backBtn = findViewById(R.id.back_btn);
+        addBtn = findViewById(R.id.add_btn);
+        mainBody = findViewById(R.id.main_body);
+        is_empty_list = findViewById(R.id.is_empty_list);
+        recyclerView = findViewById(R.id.food_rv);
+        rvContainer = findViewById(R.id.rv_container);
+        searchView = findViewById(R.id.search_view);
+        is_empty_list.setVisibility(View.INVISIBLE);
+
+        storageReference = FirebaseStorage.getInstance().getReference("Images");
     }
 
     private void formSpinnerComponents() {
@@ -169,34 +213,6 @@ public class FoodActivity extends AppCompatActivity {
         });
     }
 
-    private void castComponents() {
-        dialog = new ProgressDialog(this);
-        dialog.setCanceledOnTouchOutside(false);
-        handler = new Handler();
-
-        // form inputs
-        img_input = findViewById(R.id.img_input);
-        title_input = findViewById(R.id.title_input);
-        desc_input = findViewById(R.id.desc_input);
-        address_input = findViewById(R.id.address_input);
-        contact_email_input = findViewById(R.id.contact_email_input);
-        contact_num_input = findViewById(R.id.contact_num_input);
-        province_spinner = findViewById(R.id.province_spinner);
-
-        addFormBody = findViewById(R.id.add_form);
-        formAddBtn = findViewById(R.id.form_add_btn);
-        formCancelBtn = findViewById(R.id.form_cancel_btn);
-
-        backBtn = findViewById(R.id.back_btn);
-        addBtn = findViewById(R.id.add_btn);
-        mainBody = findViewById(R.id.main_body);
-        is_empty_list = findViewById(R.id.is_empty_list);
-        recyclerView = findViewById(R.id.food_rv);
-        rvContainer = findViewById(R.id.rv_container);
-        searchView = findViewById(R.id.search_view);
-        is_empty_list.setVisibility(View.INVISIBLE);
-    }
-
     private void setListeners() {
         img_input.setOnClickListener(v-> {
             choosingOfPicture();
@@ -212,13 +228,9 @@ public class FoodActivity extends AppCompatActivity {
             foodAreaProvinceVal = province_spinner.getSelectedItem().toString().trim();
             foodAreaContactEmailVal = contact_email_input.getText().toString().trim();
             foodAreaContactNumVal = contact_num_input.getText().toString().trim();
-            validateInputs();
 
-            if (errors.equals(false)) {
-                // save data ang upload image
-                storageReference = FirebaseStorage.getInstance().getReference("Images");
-                saveDataAndUploadImage(editFoodArea);
-            }
+            // save data ang upload image
+            saveDataAndUploadImage(editFoodArea);
         });
 
         // cancel form food area
@@ -228,29 +240,330 @@ public class FoodActivity extends AppCompatActivity {
 
         // header add tourist spot
         addBtn.setOnClickListener(v-> {
-            addBtn.setVisibility(View.INVISIBLE);
-            backBtn.setVisibility(View.INVISIBLE);
-            mainBody.setVisibility(View.GONE);
-            addFormBody.setVisibility(View.VISIBLE);
-            isAdding = true;
+            PopupMenu popupMenu = new PopupMenu(FoodActivity.this, addBtn);
+            popupMenu.inflate(R.menu.user_header_menu);
+            popupMenu.setOnMenuItemClickListener(item -> {
+                AppCompatActivity activity = (AppCompatActivity) v.getContext();
+                FragmentManager fragmentManager = activity.getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+                switch (item.getItemId()) {
+                    case R.id.menu_addPost:
+                        addBtn.setVisibility(View.INVISIBLE);
+                        backBtn.setVisibility(View.INVISIBLE);
+                        mainBody.setVisibility(View.GONE);
+                        addFormBody.setVisibility(View.VISIBLE);
+                        break;
+
+                    // if menu approve is clicked
+                    case R.id.menu_ownPosts:
+                        FoodPostOwnedFragment ownedPosts = new FoodPostOwnedFragment();
+                        fragmentTransaction.replace(R.id.framelayout, ownedPosts);
+                        fragmentTransaction.commit();
+                        break;
+
+                    case R.id.menu_ownFavs:
+                        FoodFavoritesFragment favPosts = new FoodFavoritesFragment();
+                        fragmentTransaction.replace(R.id.framelayout, favPosts);
+                        fragmentTransaction.commit();
+                        break;
+                }
+                return false;
+            });
+            popupMenu.show();
         });
 
         // header back to home btn
         backBtn.setOnClickListener(v-> {
-            intent = new Intent(getApplicationContext(), HomeActivity.class);
+            intent = new Intent(FoodActivity.this, HomeActivity.class);
             startActivity(intent);
         });
 
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mainProvinceSpinner.setSelection(mainProvinceSpinner.getSelectedItemPosition());
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                }, 300);
+            }
+        });
+    }
+
+    private void mainProvinceSpinner() {
+        mainProvinceSpinnerRef = FirebaseDatabase.getInstance().getReference("cebuapp_provinces");
+        mainProvinceSpinnerList = new ArrayList<>();
+        mainProvinceSpinnerAdapter = new ArrayAdapter<String>(FoodActivity.this, android.R.layout.simple_spinner_dropdown_item,
+                mainProvinceSpinnerList);
+        mainProvinceSpinner.setAdapter(mainProvinceSpinnerAdapter);
+
+        // supply data to spinner
+        mainProvinceSpinnerList.add("ALL");
+        mainProvinceSpinnerRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot uniqueKey: snapshot.getChildren()) {
+                    for(DataSnapshot data : uniqueKey.getChildren()){
+                        mainProvinceSpinnerList.add(data.getValue().toString());
+                    }
+                }
+                mainProvinceSpinnerAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(FoodActivity.this, "Unable to pull Cebu provinces", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        });
+
+        // spinner listener for province
+        mainProvinceSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                // get selected position of spinner
+                selectedCategory = mainProvinceSpinner.getSelectedItem().toString();
+                dialog.setTitle("Getting " + selectedCategory + " Food Area in Cebu.");
+                dialog.show();
+
+                // clear searchview value
+                if (searchView.getQuery() != "") {
+                    searchView.setQuery("", false);
+                }
+
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (isConnectedToInternet()) {
+                            // ONLINE
+                            if (selectedCategory.equals("ALL")) {
+                                getAllFoodAreas();
+                            } else {
+                                getFoodAreasByProvince(selectedCategory, position);
+                            }
+                        } else {
+                            Toast.makeText(FoodActivity.this, "Please connect to the Internet.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }, 1000);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                return;
+            }
+        });
+    }
+
+    private void searchWordListener() {
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener()  {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                String selectedProvince = mainProvinceSpinner.getSelectedItem().toString();
+                dialog.setTitle("Searching '" + query + "' from '" + selectedProvince + "'");
+                dialog.show();
+
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        crudFoodAreas.getSearchedWord(query).addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                foodList.clear();
+                                for (DataSnapshot data : snapshot.getChildren()) {
+                                    FoodArea searchData = data.getValue(FoodArea.class);
+
+                                    // get only approved food areas
+                                    if (searchData.getApproved().equals(true)) {
+                                        // get by selected province
+                                        if (searchData.getFoodProvince().equals(selectedProvince)) {
+                                            searchData.setKey(data.getKey());
+
+                                            // append to list
+                                            foodList.add(searchData);
+                                            key = data.getKey();
+
+                                        } else if (selectedProvince == "ALL"){
+                                            searchData.setKey(data.getKey());
+
+                                            // append to list
+                                            foodList.add(searchData);
+                                            key = data.getKey();
+                                        }
+                                    }
+                                }
+
+                                if (foodList.isEmpty() == true) {
+                                    rvContainer.setVisibility(View.GONE);
+                                    is_empty_list.setVisibility(View.VISIBLE);
+                                } else {
+                                    adapter.setItems(foodList);
+                                    adapter.notifyDataSetChanged();
+                                    rvContainer.setVisibility(View.VISIBLE);
+                                    is_empty_list.setVisibility(View.GONE);
+                                }
+                                dialog.dismiss();
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                Toast.makeText(FoodActivity.this, "Error occured.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                }, 1000);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                Integer selectedProvincePos = mainProvinceSpinner.getSelectedItemPosition();
+                // if search is emptied
+                if (newText.equals("")) {
+                    // reselect province
+                    if (selectedProvincePos.equals(0)) {
+                        mainProvinceSpinner.setSelection(1);
+                    } else {
+                        mainProvinceSpinner.setSelection(0);
+                    }
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mainProvinceSpinner.setSelection(selectedProvincePos);
+                        }
+                    }, 50);
+                }
+                return false;
+            }
+        });
+    }
+
+    private void getAllFoodAreas() {
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                crudFoodAreas.getAllApproved().addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        foodList.clear();
+                        for (DataSnapshot data : snapshot.getChildren()) {
+                            FoodArea foodAreaData = data.getValue(FoodArea.class);
+
+                            // set data
+                            foodAreaData.setKey(data.getKey());
+
+                            // append to list
+                            foodList.add(foodAreaData);
+                            key = data.getKey();
+                        }
+
+                        if (foodList.isEmpty() == true) {
+                            rvContainer.setVisibility(View.GONE);
+                            is_empty_list.setVisibility(View.VISIBLE);
+                        } else {
+                            adapter.setItems(foodList);
+                            adapter.notifyDataSetChanged();
+                            rvContainer.setVisibility(View.VISIBLE);
+                            is_empty_list.setVisibility(View.GONE);
+                        }
+                        dialog.dismiss();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Toast.makeText(FoodActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }, 1000);
 
     }
 
-    private void validateInputs() {
+    private void getFoodAreasByProvince(String provinceName, Integer spinnerPos) {
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                crudFoodAreas.getAllApproved().addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        foodList.clear();
+                        for (DataSnapshot data : snapshot.getChildren()) {
+                            FoodArea foodAreaData = data.getValue(FoodArea.class);
+
+                            if (foodAreaData.getFoodProvince().equals(provinceName)) {
+                                // set data
+                                foodAreaData.setKey(data.getKey());
+
+                                // append to list
+                                foodList.add(foodAreaData);
+                                key = data.getKey();
+                            }
+                        }
+
+                        if (foodList.isEmpty() == true) {
+                            rvContainer.setVisibility(View.GONE);
+                            is_empty_list.setVisibility(View.VISIBLE);
+                        } else {
+                            adapter.setItems(foodList);
+                            adapter.notifyDataSetChanged();
+                            rvContainer.setVisibility(View.VISIBLE);
+                            is_empty_list.setVisibility(View.GONE);
+                        }
+                        dialog.dismiss();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        return;
+                    }
+                });
+            }
+        }, 500);
+    }
+
+    private void choosingOfPicture() {
+        intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select an Image"), 7);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 7 && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            imageUri = data.getData();
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+                img_input.setImageBitmap(bitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public String GetFileExtension(Uri uri) {
+        ContentResolver contentResolver = getContentResolver();
+        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+        return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri)) ;
+    }
+
+    private void saveDataAndUploadImage(FoodArea editFoodArea) {
         errors = false;
 
         // validate inputs
         if (foodAreaTitleVal.isEmpty()) {
             title_input.setError("Food Area title is required.");
             title_input.requestFocus();
+            errors = true;
+            return;
+        }
+
+        if (img_input.getResources().equals(R.drawable.custom_input_field) || imageUri == null) {
+            HelperUtilities.showOkAlert(FoodActivity.this, "Please select an Image.");
             errors = true;
             return;
         }
@@ -296,40 +609,11 @@ public class FoodActivity extends AppCompatActivity {
             errors = true;
             return;
         }
-    }
 
-    private void choosingOfPicture() {
-        intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select an Image"), 7);
-    }
+        if (!errors && errors.equals(false)) {
+            dialog.setTitle("Submitting your Food Area entry...");
+            dialog.show();
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 7 && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            imageUri = data.getData();
-            try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
-                img_input.setImageBitmap(bitmap);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public String GetFileExtension(Uri uri) {
-        ContentResolver contentResolver = getContentResolver();
-        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
-        return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri)) ;
-    }
-
-    private void saveDataAndUploadImage(FoodArea editFoodArea) {
-        dialog.setTitle("Submitting your Food Area entry...");
-        dialog.show();
-
-        if (imageUri != null) {
             StorageReference storageReference2 = storageReference.child(System.currentTimeMillis() +'.'+ GetFileExtension(imageUri));
             UploadTask uploadTask = storageReference2.putFile(imageUri);
             uploadTask.addOnSuccessListener((OnSuccessListener) (taskSnapshot) -> {
@@ -342,14 +626,15 @@ public class FoodActivity extends AppCompatActivity {
                     foodAreaImgVal = uri.toString();
                     foodAreaPostedVal = HelperUtilities.getCurrentDate();
                     String foodAuthorVal = firebaseUser.getEmail();;
-                    Integer spinnerPos = 0;
 
                     FoodArea foodAreasData = new FoodArea(foodAreaApproveVal, foodAuthorVal, foodAreaImgVal, foodAreaAddressVal, foodAreaContactEmailVal, foodAreaContactNumVal,
-                            foodAreaDescVal, foodAreaPostedVal, foodAreaProvinceVal, foodAreaTitleVal, spinnerPos);
+                            foodAreaDescVal, foodAreaPostedVal, foodAreaProvinceVal, foodAreaTitleVal);
 
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
+                            dialog.dismiss();
+
                             crudFoodAreas.add(foodAreasData).addOnSuccessListener(suc -> {
                                 // reset form
                                 resetFormInputs();
@@ -366,16 +651,10 @@ public class FoodActivity extends AppCompatActivity {
                                 HelperUtilities.showOkAlert(FoodActivity.this,
                                         "Adding failed, please try again.");
                             });
-                            dialog.dismiss();
                         }
                     }, 300);
                 });
             });
-        } else {
-            dialog.dismiss();
-            Toast.makeText(this, "Please select an Image.", Toast.LENGTH_SHORT).show();
-            img_input.setFocusable(true);
-            img_input.requestFocus();
         }
     }
 
@@ -425,228 +704,6 @@ public class FoodActivity extends AppCompatActivity {
                 }).create().show();
     }
 
-    private void mainProvinceSpinner() {
-        mainProvinceSpinner = findViewById(R.id.food_spinner);
-        mainProvinceSpinnerRef = FirebaseDatabase.getInstance().getReference("cebuapp_provinces");
-        mainProvinceSpinnerList = new ArrayList<>();
-        mainProvinceSpinnerAdapter = new ArrayAdapter<String>(FoodActivity.this, android.R.layout.simple_spinner_dropdown_item,
-                mainProvinceSpinnerList);
-        mainProvinceSpinner.setAdapter(mainProvinceSpinnerAdapter);
-
-        // supply data to spinner
-        mainProvinceSpinnerList.add("ALL");
-        mainProvinceSpinnerRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot uniqueKey: snapshot.getChildren()) {
-                    for(DataSnapshot data : uniqueKey.getChildren()){
-                        mainProvinceSpinnerList.add(data.getValue().toString());
-                    }
-                }
-                mainProvinceSpinnerAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(FoodActivity.this, "Unable to pull Cebu provinces", Toast.LENGTH_SHORT).show();
-                return;
-            }
-        });
-
-        // spinner listener for province
-        mainProvinceSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                // get selected position of spinner
-                selectedCategory = mainProvinceSpinner.getSelectedItem().toString();
-                dialog.setTitle("Fetching " + selectedCategory + " Food Area in Cebu.");
-                dialog.show();
-
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (isConnectedToInternet()) {
-                            // ONLINE
-                            if (selectedCategory.equals("ALL")) {
-                                getAllFoodAreas();
-                            } else {
-                                getFoodAreasByProvince(selectedCategory, position);
-                            }
-                        } else {
-                            Toast.makeText(FoodActivity.this, "Please connect to the Internet.", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }, 1000);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                return;
-            }
-        });
-    }
-
-    private void searchWordListener() {
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener()  {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                String selectedProvince = mainProvinceSpinner.getSelectedItem().toString();
-                dialog.setTitle("Searching '" + query + "' from '" + selectedProvince + "' job category");
-                dialog.show();
-
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        crudFoodAreas.getSearchedWord(query).addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                ArrayList<FoodArea> foodList = new ArrayList<>();
-                                for (DataSnapshot data : snapshot.getChildren()) {
-                                    FoodArea searchData = data.getValue(FoodArea.class);
-
-                                    // get only approved food areas
-                                    if (
-                                            searchData.getApproved().equals(true)
-                                                    &&  searchData.getFoodProvince().equals(selectedProvince)
-                                    ) {
-                                        // set data
-                                        searchData.setKey(data.getKey());
-
-                                        // append to list
-                                        foodList.add(searchData);
-                                        key = data.getKey();
-                                    }
-                                }
-
-                                if (foodList.isEmpty() == true) {
-                                    rvContainer.setVisibility(View.GONE);
-                                    is_empty_list.setVisibility(View.VISIBLE);
-                                } else {
-                                    adapter.setItems(foodList);
-                                    adapter.notifyDataSetChanged();
-                                    rvContainer.setVisibility(View.VISIBLE);
-                                    is_empty_list.setVisibility(View.GONE);
-                                }
-                                dialog.dismiss();
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-                                Toast.makeText(FoodActivity.this, "Error occured.", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-                }, 1000);
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                Integer selectedProvincePos = mainProvinceSpinner.getSelectedItemPosition();
-                // if search is emptied
-                if (newText.equals("")) {
-                    // reselect province
-                    if (selectedProvincePos.equals(0)) {
-                        mainProvinceSpinner.setSelection(1);
-                    } else {
-                        mainProvinceSpinner.setSelection(0);
-                    }
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            mainProvinceSpinner.setSelection(selectedProvincePos);
-                        }
-                    }, 300);
-                }
-                return false;
-            }
-        });
-    }
-
-    private void getAllFoodAreas() {
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                crudFoodAreas.getAllApproved().addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        ArrayList<FoodArea> foodList = new ArrayList<>();
-                        for (DataSnapshot data : snapshot.getChildren()) {
-                            FoodArea foodAreaData = data.getValue(FoodArea.class);
-
-                            // set data
-                            foodAreaData.setKey(data.getKey());
-
-                            // append to list
-                            foodList.add(foodAreaData);
-                            key = data.getKey();
-                        }
-
-                        if (foodList.isEmpty() == true) {
-                            rvContainer.setVisibility(View.GONE);
-                            is_empty_list.setVisibility(View.VISIBLE);
-                        } else {
-                            adapter.setItems(foodList);
-                            adapter.notifyDataSetChanged();
-                            rvContainer.setVisibility(View.VISIBLE);
-                            is_empty_list.setVisibility(View.GONE);
-                        }
-                        dialog.dismiss();
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Toast.makeText(FoodActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        }, 1000);
-
-    }
-
-    private void getFoodAreasByProvince(String provinceName, Integer spinnerPos) {
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                crudFoodAreas.getAllApproved().addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        ArrayList<FoodArea> foodList = new ArrayList<>();
-                        for (DataSnapshot data : snapshot.getChildren()) {
-                            FoodArea foodAreaData = data.getValue(FoodArea.class);
-
-                            if (foodAreaData.getFoodProvince().equals(provinceName)) {
-                                // set data
-                                foodAreaData.setKey(data.getKey());
-                                foodAreaData.setSpinnerPos(spinnerPos);
-
-                                // append to list
-                                foodList.add(foodAreaData);
-                                key = data.getKey();
-                            }
-                        }
-
-                        if (foodList.isEmpty() == true) {
-                            rvContainer.setVisibility(View.GONE);
-                            is_empty_list.setVisibility(View.VISIBLE);
-                        } else {
-                            adapter.setItems(foodList);
-                            adapter.notifyDataSetChanged();
-                            rvContainer.setVisibility(View.VISIBLE);
-                            is_empty_list.setVisibility(View.GONE);
-                        }
-                        dialog.dismiss();
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        return;
-                    }
-                });
-            }
-        }, 1000);
-    }
-
     private boolean isConnectedToInternet() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         if (connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED
@@ -659,8 +716,16 @@ public class FoodActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        startActivity(new Intent(new Intent(getApplicationContext(), HomeActivity.class)));
-        finish();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        Fragment fragment = fragmentManager.findFragmentById(R.id.framelayout);
+        if (fragment != null) {
+            fragmentTransaction.remove(fragment);
+            fragmentTransaction.commit();
+        } else {
+            super.onBackPressed();
+            startActivity(new Intent(new Intent(FoodActivity.this, HomeActivity.class)));
+            finish();
+        }
     }
 }

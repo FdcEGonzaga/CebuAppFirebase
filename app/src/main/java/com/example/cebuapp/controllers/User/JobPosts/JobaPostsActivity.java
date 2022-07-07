@@ -1,7 +1,5 @@
 package com.example.cebuapp.controllers.User.JobPosts;
 
-import static androidx.core.content.ContextCompat.getSystemService;
-
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -23,6 +21,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -32,11 +31,16 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.cebuapp.R;
 import com.example.cebuapp.controllers.Admin.ManageJobPosts.CRUDManageJobPosts;
+import com.example.cebuapp.controllers.Admin.ManageTouristSpots.ManageTouristSpotsActivity;
 import com.example.cebuapp.controllers.HomeActivity;
 import com.example.cebuapp.Helper.HelperUtilities;
 import com.example.cebuapp.model.JobPosts;
@@ -60,14 +64,16 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-public class JobsActivity extends AppCompatActivity {
+public class JobaPostsActivity extends AppCompatActivity {
     private Intent intent;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private LinearLayout rvContainer, mainBody;
     private TextView is_empty_list, headerTitle;
     private androidx.appcompat.widget.SearchView searchView;
     private Handler handler;
     private FirebaseUser firebaseUser;
     private String userEmail;
+    private Boolean errors;
 
     // main job field spinnner
     private Spinner mainJobFieldSpinner;
@@ -77,12 +83,12 @@ public class JobsActivity extends AppCompatActivity {
 
     // form
     private JobPosts jobPostsData;
-    private TextView jp_company_label;
+    private TextView jp_company_label, jp_img_label;
     private EditText jp_title_input, jp_desc_input, jp_exp_input, jp_salary_input, jp_link_input, jp_company_input,
             jp_company_dets_input;
     private String jobPostImgVal, jobPostTitleVal, jobPostDescVal, jobPostPostedVal, jobPostExpVal, jobPostSalaryVal,
             jobPostProvinceVal, jobPostCompanyVal, jobPostCompanyDetsVal, jobPostFieldsVal, jobPostLinkVal;
-    private Boolean jobPostApproveVal, errors;
+    private Boolean jobPostApproveVal;
     private Button formAddBtn, formCancelBtn;
 
     // Image uploading
@@ -112,16 +118,13 @@ public class JobsActivity extends AppCompatActivity {
     private ImageButton backBtn, addBtn;
     private ScrollView addFormBody;
 
+    // sort manager
+    private LinearLayoutManager manager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_jobs);
-
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-
-        dialog = new ProgressDialog(this);
-        dialog.setCanceledOnTouchOutside(false);
-        handler = new Handler();
 
         castComponents();
 
@@ -136,7 +139,6 @@ public class JobsActivity extends AppCompatActivity {
             crudJobPosts = new CRUDManageJobPosts();
 
             // showing the recycler view
-            LinearLayoutManager manager = new LinearLayoutManager(this);
             recyclerView.setHasFixedSize(true);
             recyclerView.setLayoutManager(manager);
             adapter = new JobPostsRVAdapter(this);
@@ -160,6 +162,13 @@ public class JobsActivity extends AppCompatActivity {
     }
 
     private void castComponents() {
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        dialog = new ProgressDialog(this);
+        dialog.setCanceledOnTouchOutside(false);
+        handler = new Handler();
+
         // header
         headerTitle = findViewById(R.id.header_title);
         backBtn = findViewById(R.id.back_btn);
@@ -175,6 +184,7 @@ public class JobsActivity extends AppCompatActivity {
         jp_company_label = findViewById(R.id.jp_company_label);
         jp_company_input = findViewById(R.id.jp_company_input);
         jp_company_dets_input = findViewById(R.id.jp_company_dets_input);
+        jp_img_label = findViewById(R.id.jp_img_label);
         jp_img_input = findViewById(R.id.jp_img_input);
         jp_title_input = findViewById(R.id.jp_title_input);
         jp_desc_input = findViewById(R.id.jp_desc_input);
@@ -187,13 +197,21 @@ public class JobsActivity extends AppCompatActivity {
         addFormBody = findViewById(R.id.add_form);
         formAddBtn = findViewById(R.id.form_add_btn);
         formCancelBtn = findViewById(R.id.form_cancel_btn);
+
+        manager = new LinearLayoutManager(this);
+        manager.setReverseLayout(true);
+        manager.setStackFromEnd(true);
+
+        // save data ang upload image
+        storageReference = FirebaseStorage.getInstance().getReference("Images");
+        imageUri = null;
     }
 
     private void formSpinnerComponents() {
         // job field spinner
         jobFieldSpinnerRef = FirebaseDatabase.getInstance().getReference("cebuapp_job_fields");
         jobFieldSpinnerList = new ArrayList<>();
-        jobFieldSpinnerAdapter = new ArrayAdapter<String>(JobsActivity.this,
+        jobFieldSpinnerAdapter = new ArrayAdapter<String>(JobaPostsActivity.this,
                 android.R.layout.simple_spinner_dropdown_item, jobFieldSpinnerList);
         jp_field_spinner.setAdapter(jobFieldSpinnerAdapter);
 
@@ -216,7 +234,7 @@ public class JobsActivity extends AppCompatActivity {
         // province spinner
         provinceSpinnerRef = FirebaseDatabase.getInstance().getReference("cebuapp_provinces");
         provinceSpinnerList = new ArrayList<>();
-        provinceSpinnerAdapter = new ArrayAdapter<String>(JobsActivity.this,
+        provinceSpinnerAdapter = new ArrayAdapter<String>(JobaPostsActivity.this,
                 android.R.layout.simple_spinner_dropdown_item, provinceSpinnerList);
         jp_province_spinner.setAdapter(provinceSpinnerAdapter);
 
@@ -244,12 +262,39 @@ public class JobsActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // header add job post
+        // header dropdown
         addBtn.setOnClickListener(v-> {
-            addBtn.setVisibility(View.INVISIBLE);
-            backBtn.setVisibility(View.INVISIBLE);
-            mainBody.setVisibility(View.GONE);
-            addFormBody.setVisibility(View.VISIBLE);
+            PopupMenu popupMenu = new PopupMenu(JobaPostsActivity.this,addBtn);
+            popupMenu.inflate(R.menu.user_header_menu);
+            popupMenu.setOnMenuItemClickListener(item -> {
+                AppCompatActivity activity = (AppCompatActivity) v.getContext();
+                FragmentManager fragmentManager = activity.getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+                switch (item.getItemId()) {
+                    case R.id.menu_addPost:
+                        addBtn.setVisibility(View.INVISIBLE);
+                        backBtn.setVisibility(View.INVISIBLE);
+                        mainBody.setVisibility(View.GONE);
+                        addFormBody.setVisibility(View.VISIBLE);
+                        break;
+
+                    // if menu approve is clicked
+                    case R.id.menu_ownPosts:
+                        JobPostsOwnedFragment ownedPosts = new JobPostsOwnedFragment();
+                        fragmentTransaction.replace(R.id.framelayout, ownedPosts);
+                        fragmentTransaction.commit();
+                        break;
+
+                    case R.id.menu_ownFavs:
+                        JobPostsFavoritesFragment favPosts = new JobPostsFavoritesFragment();
+                        fragmentTransaction.replace(R.id.framelayout, favPosts);
+                        fragmentTransaction.commit();
+                        break;
+                }
+                return false;
+            });
+            popupMenu.show();
         });
 
         jp_img_input.setOnClickListener(v-> {
@@ -268,10 +313,7 @@ public class JobsActivity extends AppCompatActivity {
             jobPostCompanyDetsVal = jp_company_dets_input.getText().toString().trim();
             jobPostFieldsVal = jp_field_spinner.getSelectedItem().toString().trim();
             jobPostProvinceVal = jp_province_spinner.getSelectedItem().toString().trim();
-            validateInputs();
 
-            // save data ang upload image
-            storageReference = FirebaseStorage.getInstance().getReference("Images");
             saveDataAndUploadImage();
         });
 
@@ -279,11 +321,50 @@ public class JobsActivity extends AppCompatActivity {
         formCancelBtn.setOnClickListener(v-> {
             isCancelAdding();
         });
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mainJobFieldSpinner.setSelection(mainJobFieldSpinner.getSelectedItemPosition());
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                }, 300);
+            }
+        });
     }
 
-    private void validateInputs() {
-        errors = false;
+    private void choosingOfPicture() {
+        intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select an Image"), 7);
+    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 7 && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            imageUri = data.getData();
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+                jp_img_input.setImageBitmap(bitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public String GetFileExtension(Uri uri) {
+        ContentResolver contentResolver = getContentResolver();
+        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+        return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri)) ;
+    }
+
+    public void saveDataAndUploadImage() {
+        errors = false;
         if (jobPostCompanyVal.isEmpty()) {
             jp_company_input.setError("Company name is required.");
             jp_company_input.requestFocus();
@@ -294,6 +375,12 @@ public class JobsActivity extends AppCompatActivity {
         if (jobPostCompanyDetsVal.isEmpty()) {
             jp_company_dets_input.setError("Company description is required.");
             jp_company_dets_input.requestFocus();
+            errors = true;
+            return;
+        }
+
+        if (jp_img_input.getResources().equals(R.drawable.custom_input_field) || imageUri == null) {
+            HelperUtilities.showOkAlert(JobaPostsActivity.this, "Please select an Image.");
             errors = true;
             return;
         }
@@ -332,40 +419,11 @@ public class JobsActivity extends AppCompatActivity {
             errors = true;
             return;
         }
-    }
 
-    private void choosingOfPicture() {
-        intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select an Image"), 7);
-    }
+        if (!errors && errors.equals(false)) {
+            dialog.setTitle("Submitting your Job Post entry...");
+            dialog.show();
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 7 && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            imageUri = data.getData();
-            try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
-                jp_img_input.setImageBitmap(bitmap);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public String GetFileExtension(Uri uri) {
-        ContentResolver contentResolver = getContentResolver();
-        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
-        return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri)) ;
-    }
-
-    public void saveDataAndUploadImage() {
-        dialog.setTitle("Submitting your Job Post entry...");
-        dialog.show();
-
-        if (imageUri != null) {
             StorageReference storageReference2 = storageReference.child(System.currentTimeMillis() + "." + GetFileExtension(imageUri));
             UploadTask uploadTask = storageReference2.putFile(imageUri);
             uploadTask.addOnSuccessListener((OnSuccessListener) (taskSnapshot) -> {
@@ -377,16 +435,17 @@ public class JobsActivity extends AppCompatActivity {
                     jobPostImgVal = uri.toString();
                     jobPostPostedVal = getCurrentDate();
                     jobPostApproveVal = false;
-                    Integer spinnerPos = 0;
                     userEmail = firebaseUser.getEmail();
 
                     jobPostsData = new JobPosts(jobPostApproveVal, userEmail, jobPostImgVal, jobPostTitleVal, jobPostDescVal, jobPostPostedVal, jobPostExpVal,
                             jobPostSalaryVal, jobPostCompanyVal, jobPostCompanyDetsVal, jobPostFieldsVal,
-                            jobPostProvinceVal, jobPostLinkVal, spinnerPos);
+                            jobPostProvinceVal, jobPostLinkVal);
 
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
+                            dialog.dismiss();
+
                             // adding of new job post
                             String jobPostSaveId = databaseReference.push().getKey();
                             databaseReference.child(jobPostSaveId).setValue(jobPostsData)
@@ -397,12 +456,12 @@ public class JobsActivity extends AppCompatActivity {
                                         handler.postDelayed(new Runnable() {
                                             @Override
                                             public void run() {
-                                                HelperUtilities.showOkAlert(JobsActivity.this,
+                                                HelperUtilities.showOkAlert(JobaPostsActivity.this,
                                                         "Your Job Post entry was submitted successfully, our Admin will review your entry and post it once approved. Thanks!");
                                             }
                                         }, 300);
                                     }).addOnFailureListener(fail -> {
-                                        HelperUtilities.showOkAlert(JobsActivity.this,
+                                        HelperUtilities.showOkAlert(JobaPostsActivity.this,
                                                 "Adding failed, please try again.");
                                     });
                             dialog.dismiss();
@@ -410,11 +469,6 @@ public class JobsActivity extends AppCompatActivity {
                     }, 300);
                 });
             });
-        } else {
-            dialog.dismiss();
-            Toast.makeText(JobsActivity.this, "Please select an Image.", Toast.LENGTH_LONG).show();
-            jp_img_input.setFocusable(true);
-            jp_img_input.requestFocus();
         }
     }
 
@@ -451,7 +505,7 @@ public class JobsActivity extends AppCompatActivity {
     }
 
     private void isCancelAdding() {
-        new AlertDialog.Builder(JobsActivity.this)
+        new AlertDialog.Builder(JobaPostsActivity.this)
             .setTitle("CebuApp")
             .setMessage("Are you sure you want to cancel submitting your Job Post entry?")
             .setCancelable(false)
@@ -477,7 +531,7 @@ public class JobsActivity extends AppCompatActivity {
     private void mainJobFieldSpinner() {
         mainJobFieldSpinnerRef = FirebaseDatabase.getInstance().getReference("cebuapp_job_fields");
         mainJobFieldSpinnerList = new ArrayList<>();
-        mainJobFieldSpinnerAdapter = new ArrayAdapter<String>(JobsActivity.this,
+        mainJobFieldSpinnerAdapter = new ArrayAdapter<String>(JobaPostsActivity.this,
                 android.R.layout.simple_spinner_dropdown_item, mainJobFieldSpinnerList);
         mainJobFieldSpinner.setAdapter(mainJobFieldSpinnerAdapter);
 
@@ -496,7 +550,7 @@ public class JobsActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(JobsActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(JobaPostsActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -510,6 +564,11 @@ public class JobsActivity extends AppCompatActivity {
                 dialog.setTitle("Fetching " + selectedCategory + " Job Post in Cebu.");
                 dialog.show();
 
+                // clear searchview value
+                if (searchView.getQuery() != "") {
+                    searchView.setQuery("", false);
+                }
+
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -521,7 +580,7 @@ public class JobsActivity extends AppCompatActivity {
                                 getJobsByCat(selectedCategory, position);
                             }
                         } else {
-                            Toast.makeText(JobsActivity.this, "Please connect to the Internet.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(JobaPostsActivity.this, "Please connect to the Internet.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }, 1000);
@@ -553,16 +612,20 @@ public class JobsActivity extends AppCompatActivity {
                                     JobPosts jobPulledData = data.getValue(JobPosts.class);
 
                                     // only get approved job posts
-                                    if (
-                                            jobPulledData.getApproved().equals(true)
-                                            && jobPulledData.getJobPostJobField().equals(selectedField)
-                                    ) {
-                                        // set data
-                                        jobPulledData.setKey(data.getKey());
+                                    if (jobPulledData.getApproved().equals(true)) {
+                                        // get by selected field category
+                                        if (jobPulledData.getJobPostJobField().equals(selectedField)) {
+                                            // append to list
+                                            jobPulledData.setKey(data.getKey());
+                                            jobPostList.add(jobPulledData);
+                                            key = data.getKey();
 
-                                        // append to list
-                                        jobPostList.add(jobPulledData);
-                                        key = data.getKey();
+                                        } else if (selectedField == "ALL") {
+                                            // append to list
+                                            jobPulledData.setKey(data.getKey());
+                                            jobPostList.add(jobPulledData);
+                                            key = data.getKey();
+                                        }
                                     }
                                 }
 
@@ -580,7 +643,7 @@ public class JobsActivity extends AppCompatActivity {
 
                             @Override
                             public void onCancelled(@NonNull DatabaseError error) {
-                                Toast.makeText(JobsActivity.this, "Error occured.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(JobaPostsActivity.this, "Error occured.", Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
@@ -604,7 +667,7 @@ public class JobsActivity extends AppCompatActivity {
                         public void run() {
                             mainJobFieldSpinner.setSelection(selectedProvincePos);
                         }
-                    }, 100);
+                    }, 50);
                 }
                 return false;
             }
@@ -641,7 +704,7 @@ public class JobsActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(JobsActivity.this, ""+error.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(JobaPostsActivity.this, ""+error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -657,7 +720,6 @@ public class JobsActivity extends AppCompatActivity {
                     if (jobPulledData.getJobPostJobField().equals(selectedCategory)) {
                         // set data
                         jobPulledData.setKey(data.getKey());
-                        jobPulledData.setSpinnerPos(spinnerPos);
 
                         // append to list
                         jobPostList.add(jobPulledData);
@@ -679,7 +741,7 @@ public class JobsActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(JobsActivity.this, ""+error.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(JobaPostsActivity.this, ""+error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -696,8 +758,16 @@ public class JobsActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        startActivity(new Intent(new Intent(getApplicationContext(), HomeActivity.class)));
-        finish();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        Fragment fragment = fragmentManager.findFragmentById(R.id.framelayout);
+        if (fragment != null) {
+            fragmentTransaction.remove(fragment);
+            fragmentTransaction.commit();
+        } else {
+            super.onBackPressed();
+            startActivity(new Intent(new Intent(getApplicationContext(), HomeActivity.class)));
+            finish();
+        }
     }
 }

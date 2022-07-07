@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/manageJobPostFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/faded_bg"
+    tools:context=".controllers.User.JobPosts.JobDetailsFragment">
+
+    <!-- close btn -->
+    <ImageButton
+        android:id="@+id/fragment_close"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="75dp"
+        android:layout_marginRight="5dp"
+        android:elevation="1dp"
+        android:layout_gravity="right"
+        android:src="@drawable/ic_close"
+        android:background="@drawable/custom_btn_rounded2"
+        />
+
+    <ScrollView
+        android:id="@+id/fragmentScroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="90dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingBottom="20dp"
+        >
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="20dp"
+            android:layout_marginBottom="10dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <ImageView
+                    android:id="@+id/jobDetailImg"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/custom_input_field"/>
+
+                <TextView
+                    android:id="@+id/jobDetailCompany"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/blue"
+                    android:text="COMPANY NAME"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:gravity="center"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="IS LOOKING FOR A"
+                    android:textSize="10sp"
+                    android:textColor="@color/lightBlue"
+                    android:layout_gravity="center"/>
+
+                <TextView
+                    android:id="@+id/jobDetailTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="WEB DEVELOPER"
+                    android:textColor="@color/darkBlue"
+                    android:textSize="25sp"
+                    android:textStyle="bold"
+                    android:gravity="center"/>
+
+                <TextView
+                    android:id="@+id/jobDetailSalary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/blue"
+                    android:text="P20,000 salary offer"
+                    android:textSize="16sp"
+                    android:gravity="center"/>
+
+                <TextView
+                    android:id="@+id/jobDetailYears"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/blue"
+                    android:text="No experience needed"
+                    android:gravity="center"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="10dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ABOUT THE COMPANY"
+                    android:textSize="10sp"
+                    android:textColor="@color/darkBlue"
+                    android:layout_gravity="center"/>
+
+                <TextView
+                    android:id="@+id/jobDetailDesc2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textSize="13sp"
+                    android:text="@string/news_sample_text"
+                    android:textColor="@color/blue"
+                    android:layout_marginBottom="10dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="JOB DESCRIPTION"
+                    android:textSize="10sp"
+                    android:textColor="@color/darkBlue"
+                    android:layout_gravity="center"/>
+
+                <TextView
+                    android:id="@+id/jobDetailDesc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:gravity="center"
+                    android:text="@string/news_sample_text"
+                    android:textColor="@color/blue"
+                    android:textSize="13sp" />
+
+                <!-- work hours and perks -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="2"
+                    android:visibility="gone"
+                    >
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="JOB HOURS"
+                        android:textSize="10sp"
+                        android:paddingLeft="10dp"
+                        android:textColor="@color/darkBlue"
+                        android:layout_weight="1"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="JOB PERKS"
+                        android:textSize="10sp"
+                        android:textColor="@color/darkBlue"
+                        android:layout_weight="1"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="10dp"
+                    android:weightSum="2"
+                    android:visibility="gone"
+                    >
+                    <TextView
+                        android:id="@+id/jobDetailSchedss"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="13sp"
+                        android:paddingLeft="10dp"
+                        android:text="8:00AM\nto\n5:00PM"
+                        android:textColor="@color/blue"
+                        android:layout_weight="1"/>
+                    <TextView
+                        android:id="@+id/jobDetailPerks"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="13sp"
+                        android:text="Incentives\nHealth Insurance\nMonthly Dinner"
+                        android:textColor="@color/blue"
+                        android:layout_weight="1" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="LOCATION"
+                    android:textSize="10sp"
+                    android:textColor="@color/darkBlue"
+                    android:layout_gravity="center"/>
+                <TextView
+                    android:id="@+id/jobDetailField"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/blue"
+                    android:text="CEBU"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="10dp"
+                    android:gravity="center"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="DATE POSTED"
+                    android:textSize="10sp"
+                    android:textColor="@color/darkBlue"
+                    android:layout_gravity="center"/>
+
+                <TextView
+                    android:id="@+id/jobDetailDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/blue"
+                    android:text="MAY 18, 2022"
+                    android:textSize="13sp"
+                    android:gravity="center"/>
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="2dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:background="@color/lightBlue"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/darkBlue"
+                    android:text="Submit your application now!"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="10dp"
+                    android:gravity="center"/>
+
+                <!-- Buttons -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:weightSum="2">
+                    <Button
+                        android:id="@+id/emailBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_margin="5dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/custom_btn_rounded2"
+                        android:gravity="center"
+                        android:padding="10dp"
+                        android:text="EMAIL"
+                        android:textColor="@color/darkBlue"
+                        android:textSize="13sp" />
+
+                    <Button
+                        android:id="@+id/applyJobBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_margin="5dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/custom_btn_rounded2"
+                        android:gravity="center"
+                        android:padding="10dp"
+                        android:text="LINK"
+                        android:textColor="@color/darkBlue"
+                        android:textSize="13sp" />
+            </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+    </ScrollView>
+
+</FrameLayout>

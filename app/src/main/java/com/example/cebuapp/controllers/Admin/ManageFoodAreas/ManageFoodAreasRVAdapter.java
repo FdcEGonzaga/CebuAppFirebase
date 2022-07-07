@@ -78,7 +78,7 @@ public class ManageFoodAreasRVAdapter extends RecyclerView.Adapter<RecyclerView.
             vh.adminListDesc3.setText(approveWord);
             vh.adminListMenu.setOnClickListener(v -> {
                 PopupMenu popupMenu = new PopupMenu(context, vh.adminListMenu);
-                popupMenu.inflate(R.menu.approve_menu);
+                popupMenu.inflate(R.menu.edit_approve_remove_menu);
                 popupMenu.setOnMenuItemClickListener(item -> {
                     switch (item.getItemId()) {
                         case R.id.menu_edit:
@@ -115,6 +115,32 @@ public class ManageFoodAreasRVAdapter extends RecyclerView.Adapter<RecyclerView.
                                         }
                                     }).create().show();
                             break;
+
+                        // if menu delete is clicked
+                        case R.id.menu_remove:
+                            new AlertDialog.Builder(context)
+                                    .setTitle("CebuApp")
+                                    .setMessage("Do you really want to remove Food Area '" + foodAreas.getFoodTitle() + "' ?")
+                                    .setCancelable(false)
+                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface arg0, int arg1) {
+                                            crudFoodAreas.delete(foodAreas.getKey()).addOnSuccessListener(suc -> {
+                                                Toast.makeText(context,
+                                                        "Deleted successfully!", Toast.LENGTH_LONG).show();
+                                                notifyItemRemoved(position);
+                                            }).addOnFailureListener(fail -> {
+                                                Toast.makeText(context,
+                                                        "Deleting failed, " + fail.getMessage(), Toast.LENGTH_LONG).show();
+                                            });
+                                        }
+                                    })
+                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.cancel();
+                                        }
+                                    }).create().show();
+                            break;
                     }
                     return false;
                 });
@@ -126,7 +152,7 @@ public class ManageFoodAreasRVAdapter extends RecyclerView.Adapter<RecyclerView.
             vh.adminListDesc3.setText(approveWord);
             vh.adminListMenu.setOnClickListener(v -> {
                 PopupMenu popupMenu = new PopupMenu(context, vh.adminListMenu);
-                popupMenu.inflate(R.menu.edit_remove_menu);
+                popupMenu.inflate(R.menu.edit_hide_remove_menu);
                 popupMenu.setOnMenuItemClickListener(item -> {
                     switch (item.getItemId()) {
                         case R.id.menu_edit:
@@ -204,7 +230,7 @@ public class ManageFoodAreasRVAdapter extends RecyclerView.Adapter<RecyclerView.
 
             // send data to fragment
             Bundle bundle = new Bundle();
-            bundle.putString("isApproved", approveWord);
+            bundle.putString("isApproved",foodAreas.getApproved().equals(true) ? "Published" : "Hidden");
             bundle.putString("detailImg",foodAreas.getFoodImg());
             bundle.putString("detailTitle",foodAreas.getFoodTitle());
             bundle.putString("detailLandmark",foodAreas.getFoodAddress());
@@ -213,6 +239,7 @@ public class ManageFoodAreasRVAdapter extends RecyclerView.Adapter<RecyclerView.
             bundle.putString("detailContact",foodAreas.getFoodContactNum());
             bundle.putString("detailEmail",foodAreas.getFoodContactEmail());
             bundle.putString("detailPosted",foodAreas.getFoodPosted());
+            bundle.putString("detailAuthor",foodAreas.getFoodAuthor());
 
             // set Fragmentclass Arguments
             FoodAreaFragment.setArguments(bundle);

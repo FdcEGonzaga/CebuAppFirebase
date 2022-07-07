@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -29,16 +30,13 @@ import com.example.cebuapp.controllers.Admin.ManageTouristSpots.ManageTouristSpo
 import com.example.cebuapp.controllers.User.Account.AccountActivity;
 import com.example.cebuapp.controllers.User.Account.CRUDAccountUsers;
 import com.example.cebuapp.controllers.User.FoodAreas.FoodActivity;
-import com.example.cebuapp.controllers.User.FoodAreas.FoodDetailsActivity;
-import com.example.cebuapp.controllers.User.JobPosts.JobsActivity;
+import com.example.cebuapp.controllers.User.JobPosts.JobaPostsActivity;
 import com.example.cebuapp.controllers.User.LatestNews.NewsActivity;
 import com.example.cebuapp.controllers.User.NearbyPlaces.MapsActivity;
 import com.example.cebuapp.controllers.User.TouristSpots.SpotsActivity;
 import com.example.cebuapp.model.DatabaseHelper;
-import com.example.cebuapp.model.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.FirebaseDatabase;
 
 public class HomeActivity extends AppCompatActivity {
     private LinearLayout normalUserUi, adminUserUi, manageJobsDropDown;
@@ -46,22 +44,19 @@ public class HomeActivity extends AppCompatActivity {
     private ImageButton imgNews, imgJobs, imgSpots, imgFoods, imgMap, imgAccount;
     private TextView userGreeting, userLogout, adminGreeting, adminLogout;
     private Button btnManageProvinces, btnManageJobs, btnManageJobFields , btnManageJobPosts, btnManageFoodAreas, btnManageTouristSpots;
-    private FirebaseAuth mAuth;
     private CRUDAccountUsers crudUsers;
     private Intent intent;
+    private FirebaseAuth mAuth;
     private String currentUserEmail, userName;
     private FirebaseUser firebaseUser;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
+    public void onStart() {
+        super.onStart();
+
+        castComponents();
 
         if (isConnectedToInternet()) {
-            castComponents();
-            greetUserName();
-            setOnclickListeners();
-
             // ADMIN SIDE - check intent extras
             Boolean isFromMngJobPostActivity = getIntent().getBooleanExtra("isFromMngJobPostActivity", false);
             if (isFromMngJobPostActivity) {
@@ -69,17 +64,34 @@ public class HomeActivity extends AppCompatActivity {
                 manageJobsDropDown.setVisibility(View.VISIBLE);
             }
 
+            // get user's name
+            mAuth = FirebaseAuth.getInstance();
+            firebaseUser = mAuth.getCurrentUser();
+            if (firebaseUser != null) {
+                currentUserEmail = firebaseUser.getEmail();
+                userName = DataFetcher.getUserName(firebaseUser.getUid());
+
+                greetUserName();
+                setOnclickListeners();
+
+            } else {
+                startActivity(new Intent(HomeActivity.this, LoginActivity.class));
+            }
         } else {
             HelperUtilities.showNoInternetAlert(HomeActivity.this);
         }
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_home);
 
     }
 
     private void greetUserName() {
-        mAuth = FirebaseAuth.getInstance();
-        firebaseUser = mAuth.getCurrentUser();
-        currentUserEmail = firebaseUser.getEmail();
-        userName = DataFetcher.getUserName(firebaseUser.getUid());
+        normalUserUi.setVisibility(View.GONE);
+        adminUserUi.setVisibility(View.GONE);
 
         // show ui, check if admin user
         if (currentUserEmail.equals("admin@gmail.com")) {
@@ -87,10 +99,12 @@ public class HomeActivity extends AppCompatActivity {
             normalUserUi.setVisibility(View.GONE);
             adminUserUi.setVisibility(View.VISIBLE);
         } else {
+            userName = DataFetcher.getUserName(firebaseUser.getUid());
             if (userName == null) {
-                userName = DataFetcher.getUserName(firebaseUser.getUid());
+                userGreeting.setText("Hi, there!");
+            } else {
+                userGreeting.setText("Hi, " + userName + "!");
             }
-            userGreeting.setText("Hi, "+ userName +"!");
             normalUserUi.setVisibility(View.VISIBLE);
             adminUserUi.setVisibility(View.GONE);
         }
@@ -138,7 +152,7 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(new Intent(getApplicationContext(), NewsActivity.class));
         });
         cardJobs.setOnClickListener(view-> {
-            startActivity(new Intent(getApplicationContext(), JobsActivity.class));
+            startActivity(new Intent(getApplicationContext(), JobaPostsActivity.class));
         });
         cardFoods.setOnClickListener(view-> {
             startActivity(new Intent(getApplicationContext(), FoodActivity.class));
@@ -156,7 +170,7 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(new Intent(getApplicationContext(), NewsActivity.class));
         });
         imgJobs.setOnClickListener(view-> {
-            startActivity(new Intent(getApplicationContext(), JobsActivity.class));
+            startActivity(new Intent(getApplicationContext(), JobaPostsActivity.class));
         });
         imgFoods.setOnClickListener(view-> {
             startActivity(new Intent(getApplicationContext(), FoodActivity.class));
@@ -176,8 +190,8 @@ public class HomeActivity extends AppCompatActivity {
                 new AlertDialog.Builder(HomeActivity.this)
                     .setTitle("CebuApp")
                     .setMessage("Are you sure you want to logout?")
-                    .setNegativeButton(android.R.string.no, null)
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    .setNegativeButton("Cancel", null)
+                    .setPositiveButton("Logout", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface arg0, int arg1) {
                             FirebaseAuth.getInstance().signOut();
                             Toast.makeText(HomeActivity.this, "Logged out successfully", Toast.LENGTH_SHORT).show();

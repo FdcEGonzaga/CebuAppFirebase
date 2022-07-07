@@ -28,6 +28,11 @@ public class CRUDManageFoodAreas {
         return databaseReference.orderByChild("approved").equalTo(true);
     }
 
+    public Query getOwnedFoodAreas(String userEmail) {
+        return databaseReference.orderByChild("foodAuthor")
+                .equalTo(userEmail);
+    }
+
     public Task<Void> add(FoodArea foodAreas) {
         return databaseReference.push().setValue(foodAreas);
     }

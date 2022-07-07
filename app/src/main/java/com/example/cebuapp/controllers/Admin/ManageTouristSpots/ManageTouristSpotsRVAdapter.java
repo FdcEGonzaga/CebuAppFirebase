@@ -23,7 +23,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cebuapp.Helper.HelperUtilities;
 import com.example.cebuapp.R;
-import com.example.cebuapp.controllers.Admin.ManageTouristSpots.ManageTouristSpotsFragment;
 import com.example.cebuapp.model.TouristSpot;
 import com.squareup.picasso.Picasso;
 
@@ -79,12 +78,12 @@ public class ManageTouristSpotsRVAdapter extends RecyclerView.Adapter<RecyclerVi
             // set menu option
             vh.adminListMenu.setOnClickListener(v -> {
                 PopupMenu popupMenu = new PopupMenu(context, vh.adminListMenu);
-                popupMenu.inflate(R.menu.approve_menu);
+                popupMenu.inflate(R.menu.edit_approve_remove_menu);
                 popupMenu.setOnMenuItemClickListener(item -> {
                     switch (item.getItemId()) {
                         case R.id.menu_edit:
                             intent = new Intent(context, ManageTouristSpotsActivity.class);
-                            intent.putExtra("touristSpotEdit", (Serializable) touristSpot);
+                            intent.putExtra("editTouristSpot", (Serializable) touristSpot);
                             context.startActivity(intent);
                             break;
 
@@ -116,6 +115,33 @@ public class ManageTouristSpotsRVAdapter extends RecyclerView.Adapter<RecyclerVi
                                         }
                                     }).create().show();
                             break;
+
+                        // if menu delete is clicked
+                        case R.id.menu_remove:
+                            new AlertDialog.Builder(context)
+                                    .setTitle("CebuApp")
+                                    .setMessage("Do you really want to remove Tourist Spot '" + touristSpot.getTouristSpotTitle() + "' ?")
+                                    .setCancelable(false)
+                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface arg0, int arg1) {
+                                            CRUDManageTouristSpots crudTouristSpot = new CRUDManageTouristSpots();
+                                            crudTouristSpot.delete(touristSpot.getKey()).addOnSuccessListener(suc -> {
+                                                Toast.makeText(context,
+                                                        "Tourist Spot was deleted successfully!", Toast.LENGTH_LONG).show();
+                                                notifyItemRemoved(position);
+                                            }).addOnFailureListener(fail -> {
+                                                Toast.makeText(context,
+                                                        "Tourist Spot deleting failed, " + fail.getMessage(), Toast.LENGTH_LONG).show();
+                                            });
+                                        }
+                                    })
+                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.cancel();
+                                        }
+                                    }).create().show();
+                            break;
                     }
                     return false;
                 });
@@ -128,12 +154,12 @@ public class ManageTouristSpotsRVAdapter extends RecyclerView.Adapter<RecyclerVi
             // set menu option
             vh.adminListMenu.setOnClickListener(v -> {
                 PopupMenu popupMenu = new PopupMenu(context, vh.adminListMenu);
-                popupMenu.inflate(R.menu.edit_remove_menu);
+                popupMenu.inflate(R.menu.edit_hide_remove_menu);
                 popupMenu.setOnMenuItemClickListener(item -> {
                     switch (item.getItemId()) {
                         case R.id.menu_edit:
                             intent = new Intent(context, ManageTouristSpotsActivity.class);
-                            intent.putExtra("touristSpotEdit", (Serializable) touristSpot);
+                            intent.putExtra("editTouristSpot", (Serializable) touristSpot);
                             context.startActivity(intent);
                             break;
 
@@ -207,7 +233,7 @@ public class ManageTouristSpotsRVAdapter extends RecyclerView.Adapter<RecyclerVi
 
             // send data to fragment
             Bundle bundle = new Bundle();
-            bundle.putString("isApproved", approveWord);
+            bundle.putString("isApproved",touristSpot.getApproved().equals(true) ? "Published" : "Hidden");
             bundle.putString("detailImg",touristSpot.getTouristSpotImg());
             bundle.putString("detailTitle",touristSpot.getTouristSpotTitle());
             bundle.putString("detailLandmark",touristSpot.getTouristSpotAddress());
@@ -216,6 +242,7 @@ public class ManageTouristSpotsRVAdapter extends RecyclerView.Adapter<RecyclerVi
             bundle.putString("detailContact",touristSpot.getTouristSpotContactNum());
             bundle.putString("detailEmail",touristSpot.getTouristSpotContactEmail());
             bundle.putString("detailPosted",touristSpot.getTouristSpotPosted());
+            bundle.putString("detailAuthor",touristSpot.getTouristSpotAuthor());
 
             // set Fragmentclass Arguments
             TouristSpotFragment.setArguments(bundle);

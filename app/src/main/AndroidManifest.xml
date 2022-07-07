@@ -42,34 +42,13 @@
             android:name=".controllers.User.Account.AccountActivity"
             android:exported="false" />
         <activity
-            android:name=".controllers.User.Splashs.SplashTouristActivity"
-            android:exported="false" />
-        <activity
-            android:name=".controllers.User.Splashs.SplashFoodActivity"
-            android:exported="false" />
-        <activity
-            android:name=".controllers.User.TouristSpots.SpotsDetailsActivity"
-            android:exported="false" />
-        <activity
             android:name=".controllers.User.TouristSpots.SpotsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".controllers.User.FoodAreas.FoodDetailsActivity"
             android:exported="false" />
         <activity
             android:name=".controllers.User.FoodAreas.FoodActivity"
             android:exported="false" />
         <activity
-            android:name=".controllers.User.JobPosts.JobDetailsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".controllers.User.JobPosts.JobsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".controllers.User.Splashs.SplashJobsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".controllers.User.Splashs.SplashNewsActivity"
+            android:name=".controllers.User.JobPosts.JobaPostsActivity"
             android:exported="false" />
         <activity
             android:name=".controllers.User.LatestNews.NewsDetailsActivity"
@@ -78,16 +57,40 @@
             android:name=".controllers.User.LatestNews.NewsActivity"
             android:exported="false" />
         <activity
-            android:name=".controllers.User.Splashs.SplashScreenActivity"
-            android:exported="false" />
-        <activity
             android:name=".controllers.User.NearbyPlaces.MapsActivity"
             android:exported="false" />
+        <activity
+            android:name=".controllers.HomeActivity"
+            android:exported="true" />
         <activity
             android:name=".controllers.RegistrationActivity"
             android:exported="false" />
         <activity
             android:name=".controllers.LoginActivity"
+            android:exported="false"/>
+        <activity
+            android:name=".controllers.User.Splashs.SplashNearbyActivity"
+            android:exported="true">
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+        </activity>
+        <activity
+            android:name=".controllers.User.Splashs.SplashTouristActivity"
+            android:exported="false" />
+        <activity
+            android:name=".controllers.User.Splashs.SplashFoodActivity"
+            android:exported="false" />
+        <activity
+            android:name=".controllers.User.Splashs.SplashJobsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".controllers.User.Splashs.SplashNewsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".controllers.User.Splashs.SplashScreenActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -95,9 +98,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".controllers.HomeActivity"
-            android:exported="true" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

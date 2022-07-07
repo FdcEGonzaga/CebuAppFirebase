@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +17,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
@@ -69,7 +67,7 @@ public class ManageJobPostsRVAdapter extends RecyclerView.Adapter<RecyclerView.V
         crudJobPosts = new CRUDManageJobPosts();
 
         yearsExp = jobPosts.getJobPostYearExp();
-        if (yearsExp.equals(0) || yearsExp.equals("0")) {
+        if (yearsExp != null && (yearsExp.equals(0) || yearsExp.equals("0"))) {
             yearsExp = "No experience required";
         } else if (yearsExp.equals(1) || yearsExp.equals("1")){
             yearsExp = "At least 1 year experience";
@@ -93,7 +91,7 @@ public class ManageJobPostsRVAdapter extends RecyclerView.Adapter<RecyclerView.V
             // set menu option
             vh.adminListMenu.setOnClickListener(v -> {
                 PopupMenu popupMenu = new PopupMenu(context, vh.adminListMenu);
-                popupMenu.inflate(R.menu.approve_menu);
+                popupMenu.inflate(R.menu.edit_approve_remove_menu);
                 popupMenu.setOnMenuItemClickListener(item -> {
                     switch (item.getItemId()) {
                         case R.id.menu_edit:
@@ -130,6 +128,33 @@ public class ManageJobPostsRVAdapter extends RecyclerView.Adapter<RecyclerView.V
                                     }
                                 }).create().show();
                         break;
+
+                        // if menu delete is clicked
+                        case R.id.menu_remove:
+                            new AlertDialog.Builder(context)
+                                    .setTitle("CebuApp")
+                                    .setMessage("Do you really want to remove Job Post '" + jobPosts.getJobPostTitle() + "' ?")
+                                    .setCancelable(false)
+                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface arg0, int arg1) {
+                                            crudJobPosts.delete(jobPosts.getKey()).addOnSuccessListener(suc -> {
+                                                Toast.makeText(context,
+                                                        "Deleted successfully!", Toast.LENGTH_LONG).show();
+                                                notifyItemRemoved(position);
+                                            }).addOnFailureListener(fail -> {
+                                                Toast.makeText(context,
+                                                        "Failed deleting, please try again." + fail.getMessage(), Toast.LENGTH_LONG).show();
+                                            });
+                                        }
+                                    })
+                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.cancel();
+                                        }
+                                    }).create().show();
+                            break;
+
                     }
                     return false;
                 });
@@ -142,7 +167,7 @@ public class ManageJobPostsRVAdapter extends RecyclerView.Adapter<RecyclerView.V
             // set menu option
             vh.adminListMenu.setOnClickListener(v -> {
                 PopupMenu popupMenu = new PopupMenu(context, vh.adminListMenu);
-                popupMenu.inflate(R.menu.edit_remove_menu);
+                popupMenu.inflate(R.menu.edit_hide_remove_menu);
                 popupMenu.setOnMenuItemClickListener(item -> {
                     switch (item.getItemId()) {
                         case R.id.menu_edit:
@@ -210,16 +235,16 @@ public class ManageJobPostsRVAdapter extends RecyclerView.Adapter<RecyclerView.V
         }
 
         vh.adminPostCard.setOnClickListener(v -> {
-            ManageJobPostFragment jobPostFragment = new ManageJobPostFragment();
+            ManageJobPostFragment MngJobPostFragment = new ManageJobPostFragment();
             AppCompatActivity activity = (AppCompatActivity) v.getContext();
             FragmentManager fragmentManager = activity.getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.framelayout, jobPostFragment);
+            fragmentTransaction.replace(R.id.framelayout, MngJobPostFragment);
             fragmentTransaction.commit();
 
             // send data to fragment
             Bundle bundle = new Bundle();
-            bundle.putString("jobDetailApproved", approveWord);
+            bundle.putString("jobDetailApproved",jobPosts.getApproved().equals(true) ? "Published" : "Hidden");
             bundle.putString("jobDetailImg",jobPosts.getJobPostImg());
             bundle.putString("jobDetailCompany",jobPosts.getJobPostCompany());
             bundle.putString("jobDetailTitle",jobPosts.getJobPostTitle());
@@ -230,9 +255,10 @@ public class ManageJobPostsRVAdapter extends RecyclerView.Adapter<RecyclerView.V
             bundle.putString("jobDetailField",jobPosts.getJobPostProvince());
             bundle.putString("jobDetailDate",jobPosts.getJobPostPosted());
             bundle.putString("jobUrlString",jobPosts.getJobPostLink());
+            bundle.putString("jobDetailAuthor",jobPosts.getJobAuthor());
 
             // set Fragmentclass Arguments
-            jobPostFragment.setArguments(bundle);
+            MngJobPostFragment.setArguments(bundle);
         });
     }
 

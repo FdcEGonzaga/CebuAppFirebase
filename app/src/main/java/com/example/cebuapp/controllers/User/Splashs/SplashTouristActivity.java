@@ -22,12 +22,12 @@ public class SplashTouristActivity extends AppCompatActivity {
         splashNextBtn = findViewById(R.id.splash_next_btn);
 
         splashBackBtn.setOnClickListener(view-> {
-            startActivity(new Intent(getApplicationContext(), SplashFoodActivity.class));
+            startActivity(new Intent(SplashTouristActivity.this, SplashFoodActivity.class));
             finish();
         });
 
         splashNextBtn.setOnClickListener(view-> {
-            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+            startActivity(new Intent(SplashTouristActivity.this, SplashNearbyActivity.class));
             finish();
         });
     }

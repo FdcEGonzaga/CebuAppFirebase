@@ -109,23 +109,7 @@
                     android:background="@color/lightBlue"
                     android:layout_marginBottom="20dp"/>
 
-                <!-- Spot Image -->
-                <TextView
-                    android:id="@+id/img_label"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Image:"
-                    android:textColor="@color/darkBlue"
-                    android:textSize="13sp"
-                    android:layout_marginBottom="10dp"/>
-                <ImageView
-                    android:id="@+id/img_input"
-                    android:layout_width="match_parent"
-                    android:layout_height="150dp"
-                    android:layout_marginBottom="20dp"
-                    android:src="@drawable/custom_input_field"/>
-
-                <!-- Title -->
+                <!-- Spot Title -->
                 <TextView
                     android:id="@+id/title_label"
                     android:layout_width="match_parent"
@@ -151,6 +135,23 @@
                     android:layout_marginBottom="20dp"
                     android:singleLine="true"
                     />
+
+                <!-- Spot Image -->
+                <TextView
+                    android:id="@+id/img_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Image:"
+                    android:textColor="@color/darkBlue"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="10dp"/>
+                <ImageView
+                    android:id="@+id/img_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:layout_marginBottom="20dp"
+                    android:src="@drawable/custom_input_field"/>
+
                 <!-- Desc -->
                 <TextView
                     android:id="@+id/desc_label"

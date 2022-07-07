@@ -30,6 +30,11 @@ public class CRUDManageJobPosts {
                 .equalTo(isApproved);
     }
 
+    public Query getOwnedJobPosts(String userEmail) {
+        return databaseReference.orderByChild("jobAuthor")
+                .equalTo(userEmail);
+    }
+
     public Task<Void> add(JobPosts jobs) {
         return databaseReference.push().setValue(jobs);
     }

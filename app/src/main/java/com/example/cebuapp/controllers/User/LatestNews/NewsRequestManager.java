@@ -34,7 +34,9 @@ public class NewsRequestManager {
                         Toast.makeText(context, "Error news api response", Toast.LENGTH_LONG).show();
                     }
 
-                    listener.onfetchData(response.body().getArticles(), response.message());
+                    if (response.body().getArticles() != null) {
+                        listener.onfetchData(response.body().getArticles(), response.message());
+                    }
                 }
 
                 @Override

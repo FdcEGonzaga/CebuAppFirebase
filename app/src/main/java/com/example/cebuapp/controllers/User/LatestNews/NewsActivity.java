@@ -3,18 +3,22 @@ package com.example.cebuapp.controllers.User.LatestNews;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.cebuapp.R;
 import com.example.cebuapp.controllers.HomeActivity;
@@ -26,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NewsActivity extends AppCompatActivity implements NewsSelectListener, View.OnClickListener{
+    private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recyclerView;
     private NewsAdapter adapter;
     private ProgressDialog dialog;
@@ -34,6 +39,9 @@ public class NewsActivity extends AppCompatActivity implements NewsSelectListene
     private NewsRequestManager manager;
     private ImageButton backBtn;
     private Intent intent;
+    private Handler handler;
+    private LinearLayout rvContainer;
+    private TextView is_empty_list;
 
     // main spinner
     private Spinner mainSpinner;
@@ -51,24 +59,18 @@ public class NewsActivity extends AppCompatActivity implements NewsSelectListene
         String defaultCategory = "GENERAL";
         manager.getNewsHeadlines(listener, defaultCategory, null);
 
-        // set dialogs
-        dialog = new ProgressDialog(this);
-        dialog.setTitle("Fetching news articles");
-        dialog.show();
 
         castComponents();
         searchWordListener();
-        setBtnListeners();
+        setListeners();
 
         // main spinner
         setMainSpinner();
 
-        // back btn
-        backBtn = findViewById(R.id.back_btn);
-        backBtn.setOnClickListener(v-> {
-            intent = new Intent(NewsActivity.this, HomeActivity.class);
-            startActivity(intent);
-        });
+        // check extras
+        if (getIntent().getExtras() != null) {
+            mainSpinner.setSelection(Integer.parseInt(getIntent().getStringExtra("spinVal")));
+        }
     }
 
     private void setMainSpinner() {
@@ -116,9 +118,20 @@ public class NewsActivity extends AppCompatActivity implements NewsSelectListene
         btn6 = findViewById(R.id.btn_6);
         btn7 = findViewById(R.id.btn_7);
         searchView = findViewById(R.id.search_view);
+        recyclerView = findViewById(R.id.newslist);
+        backBtn = findViewById(R.id.back_btn);
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        rvContainer = findViewById(R.id.rv_container);
+        is_empty_list = findViewById(R.id.is_empty_list);
+
+        // set dialogs
+        dialog = new ProgressDialog(this);
+        dialog.setTitle("Fetching news articles");
+        dialog.show();
+        handler = new Handler();
     }
 
-    private void setBtnListeners() {
+    private void setListeners() {
         btn1.setOnClickListener(this);
         btn2.setOnClickListener(this);
         btn3.setOnClickListener(this);
@@ -126,18 +139,38 @@ public class NewsActivity extends AppCompatActivity implements NewsSelectListene
         btn5.setOnClickListener(this);
         btn6.setOnClickListener(this);
         btn7.setOnClickListener(this);
+
+        // back btn
+        backBtn.setOnClickListener(v-> {
+            intent = new Intent(NewsActivity.this, HomeActivity.class);
+            startActivity(intent);
+        });
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                }, 300);
+            }
+        });
     }
 
     private final OnFetchNewsDataListener<NewsApiResponse> listener = new OnFetchNewsDataListener<NewsApiResponse>() {
         @Override
         public void onfetchData(List<NewsArticles> list, String message) {
             if (list.isEmpty()) {
-                Toast.makeText(NewsActivity.this, "Error: No data found." , Toast.LENGTH_SHORT).show();
-                dialog.dismiss();
+                rvContainer.setVisibility(View.GONE);
+                is_empty_list.setVisibility(View.VISIBLE);
             } else {
+                rvContainer.setVisibility(View.VISIBLE);
+                is_empty_list.setVisibility(View.GONE);
                 showNews(list);
-                dialog.dismiss();
             }
+            dialog.dismiss();
         }
 
         @Override
@@ -148,7 +181,6 @@ public class NewsActivity extends AppCompatActivity implements NewsSelectListene
     };
 
     private void showNews(List<NewsArticles> list) {
-        recyclerView = findViewById(R.id.newslist);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 1));
         adapter = new NewsAdapter(this, list, this);
@@ -158,24 +190,43 @@ public class NewsActivity extends AppCompatActivity implements NewsSelectListene
     @Override
     public void OnNewsClicked(NewsArticles articles) {
         startActivity(new Intent(NewsActivity.this, NewsDetailsActivity.class)
-                .putExtra("data", articles));
+                .putExtra("data", articles).putExtra("spinVal", ""+mainSpinner.getSelectedItemPosition()));
     }
 
     private void searchWordListener() {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                dialog.setTitle("Searching for " + query + "...");
+                String selectedCategory = mainSpinner.getSelectedItem().toString();
+
+                dialog.setTitle("Searching for " + query + " from " + selectedCategory + " category...");
                 dialog.show();
 
+                selectedCategory = selectedCategory == "ALL" ? "general" : selectedCategory;
                 NewsRequestManager manager = new NewsRequestManager(NewsActivity.this);
-                manager.getNewsHeadlines(listener, "general", query);
+                manager.getNewsHeadlines(listener, selectedCategory.trim(), query);
 
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                Integer selectedCategory = mainSpinner.getSelectedItemPosition();
+                // if search is emptied
+                if (newText.equals("")) {
+                    // reselect province
+                    if (selectedCategory.equals(0)) {
+                        mainSpinner.setSelection(1);
+                    } else {
+                        mainSpinner.setSelection(0);
+                    }
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mainSpinner.setSelection(selectedCategory);
+                        }
+                    }, 100);
+                }
                 return false;
             }
         });

@@ -106,13 +106,65 @@
                     android:minHeight="2dp"
                     android:background="@color/lightBlue"
                     android:layout_marginBottom="20dp"/>
-
+                <!-- Job Company -->
+                <TextView
+                    android:id="@+id/jp_company_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Company:"
+                    android:textColor="@color/darkBlue"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="10dp"/>
+                <EditText
+                    android:id="@+id/jp_company_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:hint="Edit company name here..."
+                    android:textColorHint="@color/lightBlue"
+                    android:textColor="@color/darkBlue"
+                    android:textSize="13sp"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="10dp"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp"
+                    android:background="@drawable/custom_input_field"
+                    android:layout_marginBottom="20dp"
+                    android:singleLine="true"
+                    />
+                <!-- Job Company dets-->
+                <TextView
+                    android:id="@+id/jp_company_dets_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Company Details:"
+                    android:textColor="@color/darkBlue"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="10dp"/>
+                <EditText
+                    android:id="@+id/jp_company_dets_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine"
+                    android:hint="Edit company details here..."
+                    android:lines="3"
+                    android:minLines="3"
+                    android:maxLines="3"
+                    android:gravity="top|start"
+                    android:scrollbars="vertical"
+                    android:textColorHint="@color/lightBlue"
+                    android:textColor="@color/darkBlue"
+                    android:textSize="13sp"
+                    android:padding="15dp"
+                    android:background="@drawable/custom_input_field"
+                    android:layout_marginBottom="20dp"
+                    />
                 <!-- Job Image -->
                 <TextView
                     android:id="@+id/jp_img_label"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Image:"
+                    android:text="Company Image:"
                     android:textColor="@color/darkBlue"
                     android:textSize="13sp"
                     android:layout_marginBottom="10dp"/>
@@ -128,7 +180,7 @@
                     android:id="@+id/jp_title_label"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Title:"
+                    android:text="Job Title:"
                     android:textColor="@color/darkBlue"
                     android:textSize="13sp"
                     android:layout_marginBottom="10dp"/>
@@ -154,7 +206,7 @@
                     android:id="@+id/jp_desc_label"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Description:"
+                    android:text="Job Description:"
                     android:textColor="@color/darkBlue"
                     android:textSize="13sp"
                     android:layout_marginBottom="10dp"/>
@@ -208,7 +260,7 @@
                     android:id="@+id/jp_salary_label"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Salary:"
+                    android:text="Salary Offer:"
                     android:textColor="@color/darkBlue"
                     android:textSize="13sp"
                     android:layout_marginBottom="10dp"/>
@@ -243,59 +295,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text"
-                    android:hint="https://www.mynimo.com/cebu-jobs"
-                    android:textColorHint="@color/lightBlue"
-                    android:textColor="@color/darkBlue"
-                    android:textSize="13sp"
-                    android:paddingLeft="15dp"
-                    android:paddingRight="10dp"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp"
-                    android:background="@drawable/custom_input_field"
-                    android:layout_marginBottom="20dp"
-                    android:singleLine="true"
-                    />
-                <!-- Job Company -->
-                <TextView
-                    android:id="@+id/jp_company_label"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Company:"
-                    android:textColor="@color/darkBlue"
-                    android:textSize="13sp"
-                    android:layout_marginBottom="10dp"/>
-                <EditText
-                    android:id="@+id/jp_company_input"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:hint="Edit company name here..."
-                    android:textColorHint="@color/lightBlue"
-                    android:textColor="@color/darkBlue"
-                    android:textSize="13sp"
-                    android:paddingLeft="15dp"
-                    android:paddingRight="10dp"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp"
-                    android:background="@drawable/custom_input_field"
-                    android:layout_marginBottom="20dp"
-                    android:singleLine="true"
-                    />
-                <!-- Job Company dets-->
-                <TextView
-                    android:id="@+id/jp_company_dets_label"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Company Details:"
-                    android:textColor="@color/darkBlue"
-                    android:textSize="13sp"
-                    android:layout_marginBottom="10dp"/>
-                <EditText
-                    android:id="@+id/jp_company_dets_input"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:hint="Edit company details here..."
+                    android:text="https://www.mynimo.com/cebu-jobs"
                     android:textColorHint="@color/lightBlue"
                     android:textColor="@color/darkBlue"
                     android:textSize="13sp"
@@ -312,7 +312,7 @@
                     android:id="@+id/jp_field_label"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Field/Type:"
+                    android:text="Job Field/Type:"
                     android:textColor="@color/darkBlue"
                     android:textSize="13sp"
                     android:layout_marginBottom="10dp"/>
@@ -325,6 +325,7 @@
                     android:layout_marginBottom="20dp"
                     android:textAlignment="center"
                     android:background="@drawable/custom_input_field"/>
+
                 <!-- Job Address -->
                 <TextView
                     android:id="@+id/jp_province_label"

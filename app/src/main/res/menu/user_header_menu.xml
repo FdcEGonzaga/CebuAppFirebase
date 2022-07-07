@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_addPost"
+        android:icon="@drawable/ic_hearted"
+        android:title="Add a Post"/>
+    <item
+        android:id="@+id/menu_ownPosts"
+        android:icon="@drawable/ic_heart"
+        android:title="Show your Posts"/>
+    <item
+        android:id="@+id/menu_ownFavs"
+        android:icon="@drawable/ic_heart"
+        android:title="Show your Favorites"/>
+</menu>

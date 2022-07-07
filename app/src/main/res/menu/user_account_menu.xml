@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_edit_profile"
+        android:icon="@drawable/ic_hearted"
+        android:title="Edit Profile"/>
+    <item
+        android:id="@+id/menu_change_email"
+        android:icon="@drawable/ic_heart"
+        android:title="Change Email"/>
+    <item
+        android:id="@+id/menu_change_pass"
+        android:icon="@drawable/ic_heart"
+        android:title="Change Pass"/>
+</menu>

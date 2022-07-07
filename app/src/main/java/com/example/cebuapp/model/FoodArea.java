@@ -17,11 +17,10 @@ public class FoodArea implements Serializable {
     private String foodPosted;
     private String foodProvince;
     private String foodTitle;
-    private Integer spinnerPos;
 
     public FoodArea() {}
     public FoodArea(Boolean approved, String foodAuthor, String foodImg, String foodAddress, String foodContactEmail, String foodContactNum,
-                    String foodDescription, String foodPosted, String foodProvince, String foodTitle, Integer spinnerPos) {
+                    String foodDescription, String foodPosted, String foodProvince, String foodTitle) {
         this.approved = approved;
         this.foodAuthor = foodAuthor;
         this.foodImg = foodImg;
@@ -32,7 +31,6 @@ public class FoodArea implements Serializable {
         this.foodPosted = foodPosted;
         this.foodProvince = foodProvince;
         this.foodTitle = foodTitle;
-        this.spinnerPos = spinnerPos;
     }
 
     public String getFoodAuthor() {
@@ -41,14 +39,6 @@ public class FoodArea implements Serializable {
 
     public void setFoodAuthor(String foodAuthor) {
         this.foodAuthor = foodAuthor;
-    }
-
-    public Integer getSpinnerPos() {
-        return spinnerPos;
-    }
-
-    public void setSpinnerPos(Integer spinnerPos) {
-        this.spinnerPos = spinnerPos;
     }
 
     public Boolean getApproved() {

@@ -74,28 +74,30 @@
         <entry key="app/src/main/res/drawable/custom_input_field.xml" value="0.2065" />
         <entry key="app/src/main/res/drawable/custom_wraper_top.xml" value="0.2065" />
         <entry key="app/src/main/res/drawable/ic_add.xml" value="0.1" />
+        <entry key="app/src/main/res/drawable/ic_heart.xml" value="0.2475" />
         <entry key="app/src/main/res/layout/activity_account.xml" value="0.335" />
         <entry key="app/src/main/res/layout/activity_admin.xml" value="0.335" />
-        <entry key="app/src/main/res/layout/activity_change_pass.xml" value="0.23802083333333332" />
+        <entry key="app/src/main/res/layout/activity_change_pass.xml" value="0.5" />
         <entry key="app/src/main/res/layout/activity_dial.xml" value="0.18" />
         <entry key="app/src/main/res/layout/activity_food.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_food_add.xml" value="0.28229166666666666" />
         <entry key="app/src/main/res/layout/activity_food_details.xml" value="0.335" />
         <entry key="app/src/main/res/layout/activity_home.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_job_details.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/activity_job_posts_owned.xml" value="0.37604166666666666" />
         <entry key="app/src/main/res/layout/activity_jobs.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_jobs_details.xml" value="0.23245331616226658" />
         <entry key="app/src/main/res/layout/activity_login.xml" value="0.335" />
         <entry key="app/src/main/res/layout/activity_manage_foodareas.xml" value="0.335" />
         <entry key="app/src/main/res/layout/activity_manage_foodaresa.xml" value="0.23802083333333332" />
         <entry key="app/src/main/res/layout/activity_manage_job_fields.xml" value="0.25" />
-        <entry key="app/src/main/res/layout/activity_manage_job_posts.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_manage_job_posts.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_manage_jobs.xml" value="0.19895833333333332" />
         <entry key="app/src/main/res/layout/activity_manage_provinces.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_manage_touristspots.xml" value="0.335" />
         <entry key="app/src/main/res/layout/activity_maps.xml" value="0.24166666666666667" />
         <entry key="app/src/main/res/layout/activity_news.xml" value="0.22" />
-        <entry key="app/src/main/res/layout/activity_news_details.xml" value="0.23802083333333332" />
+        <entry key="app/src/main/res/layout/activity_news_details.xml" value="0.33" />
         <entry key="app/src/main/res/layout/activity_registration.xml" value="0.335" />
         <entry key="app/src/main/res/layout/activity_splash_food.xml" value="0.28229166666666666" />
         <entry key="app/src/main/res/layout/activity_splash_nearby.xml" value="0.28229166666666666" />
@@ -108,20 +110,38 @@
         <entry key="app/src/main/res/layout/custom_food_list_item.xml" value="0.31843575418994413" />
         <entry key="app/src/main/res/layout/custom_list_item.xml" value="0.3943089430894309" />
         <entry key="app/src/main/res/layout/custom_list_item_admin.xml" value="0.45" />
-        <entry key="app/src/main/res/layout/custom_list_item_food.xml" value="0.37604166666666666" />
-        <entry key="app/src/main/res/layout/custom_list_item_jobs.xml" value="0.27314814814814814" />
+        <entry key="app/src/main/res/layout/custom_list_item_food.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/custom_list_item_jobs.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/custom_list_item_news.xml" value="0.5" />
         <entry key="app/src/main/res/layout/custom_list_item_spots.xml" value="0.28229166666666666" />
         <entry key="app/src/main/res/layout/custom_news_list_item.xml" value="0.335" />
         <entry key="app/src/main/res/layout/custom_province_list_item.xml" value="0.1" />
         <entry key="app/src/main/res/layout/custom_single_value_list_item.xml" value="0.375" />
         <entry key="app/src/main/res/layout/custom_spots_list_item.xml" value="0.33" />
         <entry key="app/src/main/res/layout/fragment_email.xml" value="0.49301983835415136" />
-        <entry key="app/src/main/res/layout/fragment_manage_food_areas.xml" value="0.1828774062816616" />
-        <entry key="app/src/main/res/layout/fragment_manage_job_post.xml" value="0.28229166666666666" />
+        <entry key="app/src/main/res/layout/fragment_food_details.xml" value="0.2520833333333333" />
+        <entry key="app/src/main/res/layout/fragment_food_favorites.xml" value="0.13177083333333334" />
+        <entry key="app/src/main/res/layout/fragment_food_posts_owned.xml" value="0.28229166666666666" />
+        <entry key="app/src/main/res/layout/fragment_job_details.xml" value="0.5" />
+        <entry key="app/src/main/res/layout/fragment_job_posts_favorites.xml" value="0.19166666666666668" />
+        <entry key="app/src/main/res/layout/fragment_job_posts_owned.xml" value="0.19427083333333334" />
+        <entry key="app/src/main/res/layout/fragment_manage_food_areas.xml" value="0.4703656998738966" />
+        <entry key="app/src/main/res/layout/fragment_manage_job_post.xml" value="0.375" />
         <entry key="app/src/main/res/layout/fragment_manage_tourist_spots.xml" value="0.37604166666666666" />
+        <entry key="app/src/main/res/layout/fragment_spots_details.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/fragment_spots_favorites.xml" value="0.371875" />
+        <entry key="app/src/main/res/layout/fragment_spots_post_owned.xml" value="0.13177083333333334" />
+        <entry key="app/src/main/res/layout/fragment_spots_posts_owned.xml" value="0.28229166666666666" />
         <entry key="app/src/main/res/menu/approve_menu.xml" value="0.28229166666666666" />
+        <entry key="app/src/main/res/menu/edit_approve_menu.xml" value="0.37604166666666666" />
+        <entry key="app/src/main/res/menu/edit_hide_menu.xml" value="0.37604166666666666" />
+        <entry key="app/src/main/res/menu/edit_hide_remove_menu.xml" value="0.371875" />
         <entry key="app/src/main/res/menu/edit_remove_menu.xml" value="0.335" />
+        <entry key="app/src/main/res/menu/favorite_menu.xml" value="0.37604166666666666" />
         <entry key="app/src/main/res/menu/province_menu.xml" value="0.1" />
+        <entry key="app/src/main/res/menu/unfavorite_menu.xml" value="0.37604166666666666" />
+        <entry key="app/src/main/res/menu/user_account_menu.xml" value="0.28229166666666666" />
+        <entry key="app/src/main/res/menu/user_header_menu.xml" value="0.16041666666666668" />
       </map>
     </option>
   </component>

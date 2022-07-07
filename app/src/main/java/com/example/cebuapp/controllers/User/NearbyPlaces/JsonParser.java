@@ -1,4 +1,4 @@
-package com.example.cebuapp.controllers.User.LatestNews;
+package com.example.cebuapp.controllers.User.NearbyPlaces;
 
 import org.json.JSONArray;
 import org.json.JSONException;

@@ -2,10 +2,12 @@ package com.example.cebuapp.controllers.Admin.ManageJobFields;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,6 +25,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.cebuapp.Helper.HelperUtilities;
 import com.example.cebuapp.R;
+import com.example.cebuapp.controllers.Admin.ManageFoodAreas.ManageFoodAreasActivity;
 import com.example.cebuapp.controllers.Admin.ManageJobPosts.ManageJobsPostsActivity;
 import com.example.cebuapp.model.JobFields;
 import com.example.cebuapp.controllers.HomeActivity;
@@ -50,6 +54,9 @@ public class ManageJobsFieldsActivity extends AppCompatActivity {
     private ImageButton backBtn, addNewBtn;
     private Intent intent;
     private JobFields editJobFieldTitle;
+
+    // sort manager
+    private LinearLayoutManager manager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,12 +104,13 @@ public class ManageJobsFieldsActivity extends AppCompatActivity {
 
         // cancel btn
         cancel_btn.setOnClickListener(v -> {
-            // show main btns
-            addNewBtn.setVisibility(View.VISIBLE);
-            backBtn.setVisibility(View.VISIBLE);
-            // hide form and show rv
-            add_edit_form.setVisibility(View.GONE);
-            swipeRefreshLayout.setVisibility(View.VISIBLE);
+            String actionVal = "";
+            if (jf_action_btn.getText().equals("ADD")) {
+                actionVal = "adding";
+            } else {
+                actionVal = "editing";
+            }
+            isCancelAdding(actionVal);
         });
 
         // back to home btn
@@ -117,14 +125,23 @@ public class ManageJobsFieldsActivity extends AppCompatActivity {
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                int totalItem = linearLayoutManager.getItemCount();
-                int lastVisible = linearLayoutManager.findLastCompletelyVisibleItemPosition();
+                manager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                manager.setReverseLayout(true);
+                manager.setStackFromEnd(true);
+                int totalItem = manager.getItemCount();
+                int lastVisible = manager.findLastCompletelyVisibleItemPosition();
                 if (totalItem < lastVisible+3) {
                     if (!isLoadMore) {
                         isLoadMore = true;
                     }
                 }
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -161,7 +178,7 @@ public class ManageJobsFieldsActivity extends AppCompatActivity {
                     // reset to adding form
                     jf_title_label.setText("Add a Job Field Title:");
                     jf_title_input.setText("");
-                    jf_action_btn.setText("Add");
+                    jf_action_btn.setText("ADD");
                     jf_title_input.clearFocus();
                     // hide form
                     add_edit_form.setVisibility(View.GONE);
@@ -220,7 +237,9 @@ public class ManageJobsFieldsActivity extends AppCompatActivity {
         dialog.setCanceledOnTouchOutside(false);
 
         // showing the recycler view
-        LinearLayoutManager manager = new LinearLayoutManager(this);
+        manager = new LinearLayoutManager(this);
+        manager.setReverseLayout(true);
+        manager.setStackFromEnd(true);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(manager);
         adapter = new ManageJobFieldsRVAdapter(this);
@@ -264,6 +283,36 @@ public class ManageJobsFieldsActivity extends AppCompatActivity {
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
+    }
+
+    private void isCancelAdding(String actionVal) {
+        new AlertDialog.Builder(ManageJobsFieldsActivity.this)
+                .setTitle("CebuApp")
+                .setMessage("Are you sure you want to cancel " + actionVal + " Job Field?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                jf_title_input.setText("");
+                                // show main btns
+                                addNewBtn.setVisibility(View.VISIBLE);
+                                backBtn.setVisibility(View.VISIBLE);
+                                // hide form and show rv
+                                add_edit_form.setVisibility(View.GONE);
+                                swipeRefreshLayout.setVisibility(View.VISIBLE);
+                            }
+                        }, 300);
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                }).create().show();
     }
 
     private boolean isConnectedToInternet() {

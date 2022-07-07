@@ -21,6 +21,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.cebuapp.Helper.DataFetcher;
 import com.example.cebuapp.R;
 import com.example.cebuapp.controllers.User.Account.ChangePassActivity;
 import com.example.cebuapp.Helper.HelperUtilities;
@@ -38,16 +39,22 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private TextView linkregister, linkchangepass;
     private FirebaseAuth mAuth;
     private ProgressBar progressBar;
-
+    private Boolean errors;
+    private String userName;
+    private FirebaseUser currentUser;
+    private int countFail;
 
     @Override
     public void onStart() {
         super.onStart();
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getInstance().getCurrentUser();
+        countFail = 0;
+
         if (isConnectedToInternet()) {
-            Toast.makeText(this, "Connected to the internet.", Toast.LENGTH_SHORT).show();
-            // Check if user is signed in redirect to homepage
-            FirebaseUser currentUser = mAuth.getInstance().getCurrentUser();
+            // Check if user is signed before and redirect to homepage
             if (currentUser != null) {
+                userName = DataFetcher.getUserName(currentUser.getUid());
                 startActivity(new Intent(LoginActivity.this, HomeActivity.class));
                 finish();
             }
@@ -56,6 +63,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             new AlertDialog.Builder(LoginActivity.this)
             .setTitle("CebuApp")
             .setMessage("You're offline. Do you want to continue?")
+            .setCancelable(false)
             .setPositiveButton("Yes", null)
             .setNegativeButton("No", new DialogInterface.OnClickListener() {
                 @Override
@@ -74,7 +82,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        mAuth = FirebaseAuth.getInstance();
         inputEmail = findViewById(R.id.inputEmail);
         inputPassword = findViewById(R.id.inputPassword);
         btnLogin = findViewById(R.id.btnLogin);
@@ -88,6 +95,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         btnLogin.setOnClickListener(this);
         linkchangepass.setOnClickListener(this);
         linkregister.setOnClickListener(this);
+        
+        if (isConnectedToInternet()) {
+            Toast.makeText(this, "Connected to the internet.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -108,77 +119,104 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private void loginUser() {
         String loginEmail = inputEmail.getText().toString().trim();
         String loginPass = inputPassword.getText().toString().trim();
+        errors = false;
 
         if (loginEmail.isEmpty()) {
             inputEmail.setError("Email is required");
             inputEmail.requestFocus();
+            errors = true;
             return;
         }
 
         if (!Patterns.EMAIL_ADDRESS.matcher(loginEmail).matches()) {
             inputEmail.setError("Please provide a valid email.");
             inputEmail.requestFocus();
+            errors = true;
             return;
         }
 
         if (loginPass.isEmpty()) {
             inputPassword.setError("Password is required.");
             inputPassword.requestFocus();
+            errors = true;
             return;
         }
 
         if (loginPass.length() < 6) {
             inputPassword.setError("Minimum password length is 6 characters.");
             inputPassword.requestFocus();
+            errors = true;
             return;
         }
 
-        // check if connected to internet
-        if (isConnectedToInternet()) {
+        progressBar.setVisibility(View.VISIBLE);
+        if (!errors && errors.equals(false)) {
             btnLogin.setEnabled(false);
-            progressBar.setVisibility(View.VISIBLE);
-            mAuth.signInWithEmailAndPassword(loginEmail, loginPass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    if (task.isSuccessful()) {
-                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            // check if connected to internet
+            if (isConnectedToInternet()) {
+                mAuth.signInWithEmailAndPassword(loginEmail, loginPass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressBar.setVisibility(View.INVISIBLE);
+                                if (task.isSuccessful()) {
 
-                        // if (user.isEmailVerified()) {
-                        //     progressBar.setVisibility(View.INVISIBLE);
-                        //     Toast.makeText(getApplicationContext(), "Logged in successfully!",
-                        //                                Toast.LENGTH_SHORT).show();
-                        //     startActivity(new Intent(LoginActivity.this, HomeActivity.class));
-                        //     finish();
-                        // } else {
-                        //     progressBar.setVisibility(View.INVISIBLE);
-                        //     user.sendEmailVerification();
-                        //      showOkAlert("Email verification pending, please check your email to verify your account.");
-                        // }
+                                    // if (user.isEmailVerified()) {
+                                    //     progressBar.setVisibility(View.INVISIBLE);
+                                    //     Toast.makeText(getApplicationContext(), "Logged in successfully!",
+                                    //                                Toast.LENGTH_SHORT).show();
+                                    //     startActivity(new Intent(LoginActivity.this, HomeActivity.class));
+                                    //     finish();
+                                    // } else {
+                                    //     progressBar.setVisibility(View.INVISIBLE);
+                                    //     user.sendEmailVerification();
+                                    //      showOkAlert("Email verification pending, please check your email to verify your account.");
+                                    // }
 
-                        btnLogin.setEnabled(true);
-                        progressBar.setVisibility(View.INVISIBLE);
-                        Toast.makeText(getApplicationContext(), "Logged in successfully!",
-                                Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(LoginActivity.this, HomeActivity.class));
-                        finish();
-                    } else {
-                        btnLogin.setEnabled(true);
-                        progressBar.setVisibility(View.INVISIBLE);
-                        HelperUtilities.showOkAlert(LoginActivity.this, "Login failed, please try again.");
+                                    Toast.makeText(getApplicationContext(), "Logged in successfully!",
+                                            Toast.LENGTH_SHORT).show();
+                                    startActivity(new Intent(LoginActivity.this, HomeActivity.class));
+                                    finish();
+                                } else {
+                                    countFail += 1;
+                                    if (countFail < 3) {
+                                        HelperUtilities.showOkAlert(LoginActivity.this, "Login failed, email or password is incorrect.");
+                                    } else {
+                                        // alert offline dialog
+                                        new AlertDialog.Builder(LoginActivity.this)
+                                                .setTitle("CebuApp")
+                                                .setCancelable(false)
+                                                .setMessage("Login failed for 3 consecutive times, do you want to change your password?")
+                                                .setNegativeButton("No", null)
+                                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        inputPassword.setText("");
+                                                        startActivity(new Intent(LoginActivity.this, ChangePassActivity.class));
+                                                    }
+                                                })
+                                                .create().show();
+                                    }
+                                }
+                                btnLogin.setEnabled(true);
+                            }
+                        }, 300);
                     }
-                }
-            });
-        } else {
-            // if no internet connection
-            btnLogin.setEnabled(false);
-            progressBar.setVisibility(View.VISIBLE);
-            final Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    HelperUtilities.showNoInternetAlert(LoginActivity.this);
-                }
-            }, 1000);
+                });
+            } else {
+                // if no internet connection
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setVisibility(View.INVISIBLE);
+                        HelperUtilities.showNoInternetAlert(LoginActivity.this);
+                    }
+                }, 300);
+            }
+
         }
     }
 

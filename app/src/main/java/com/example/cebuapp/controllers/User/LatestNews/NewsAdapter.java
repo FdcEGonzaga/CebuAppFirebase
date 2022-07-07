@@ -1,14 +1,19 @@
 package com.example.cebuapp.controllers.User.LatestNews;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cebuapp.R;
+import com.example.cebuapp.controllers.User.FoodAreas.FoodDetailsFragment;
 import com.example.cebuapp.model.NewsArticles;
 import com.squareup.picasso.Picasso;
 

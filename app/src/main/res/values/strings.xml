@@ -10,8 +10,8 @@
     <string name="login_txt">Log in</string>
     <string name="signup_txt">SIGN UP</string>
     <string name="register_txt">Register</string>
-    <string name="news_api_key" translatable="false">7364827e805342f7b4cabfa15f091743</string>
-    <string name="news_sample_text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. </string>
+    <string name="news_api_key" translatable="false">4bbda8e9b0db47d7b8c9af702b992686</string>
+    <string name="news_sample_text">This is a sample text. This is a sample text. This is a sample text.</string>
     <string name="splash_news_description">Stay updated with the latest news and events whenever want!</string>
     <string name="splash_jobs_description">Find the fittest job for you with just a click of your fingertips!</string>
     <string name="dash_txt_separator">- - - - - - - - - - - - -</string>
@@ -25,12 +25,12 @@
     <string name="splash_food_description">Find the nearest food areas around your location</string>
     <string name="search_location_txt">Search a location here...</string>
     <string name="google_map_key">AIzaSyBujk5u08fRir8rd1b_1WOq0-AbfrtjREo</string>
-    <string name="change_pass">Reset Password</string>
+    <string name="change_pass">Send Request</string>
     <string name="default_info_title">Default Title</string>
     <string name="default_info_snippet">Default snippet</string>
     <string name="pick_place">Pick a place</string>
-    <string name="splash_maps_descpription">Get the latest nearby places to visit on your current location</string>
-    <string name="short_sample_text">"This is a short sample text. This is a short sample text. This is a short sample text. "</string>
+    <string name="splash_maps_descpription">Check the nearby places to visit on your current location</string>
+    <string name="short_sample_text">"This is a short sample text. This is a short sample text. This is a short sample text. This is a short sample text. "</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="one_word_text">Sample</string>

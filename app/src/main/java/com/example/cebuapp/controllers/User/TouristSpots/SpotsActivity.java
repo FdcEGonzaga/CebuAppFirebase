@@ -22,6 +22,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -31,14 +32,18 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.cebuapp.R;
 import com.example.cebuapp.controllers.Admin.ManageTouristSpots.CRUDManageTouristSpots;
 import com.example.cebuapp.controllers.HomeActivity;
 import com.example.cebuapp.Helper.HelperUtilities;
-import com.example.cebuapp.controllers.User.JobPosts.JobsActivity;
+import com.example.cebuapp.controllers.User.JobPosts.JobaPostsActivity;
 import com.example.cebuapp.model.TouristSpot;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -61,6 +66,7 @@ import java.util.Date;
 import java.util.Locale;
 
 public class SpotsActivity extends AppCompatActivity {
+    private SwipeRefreshLayout swipeRefreshLayout;
     private FirebaseUser firebaseUser;
     private Intent intent;
     private TextView is_empty_list;
@@ -109,6 +115,10 @@ public class SpotsActivity extends AppCompatActivity {
     private DatabaseReference provinceSpinnerRef;
     private ArrayList<String> provinceSpinnerList;
     private ArrayAdapter<String> provinceSpinnerAdapter;
+    private ArrayList<TouristSpot> spotsList;
+
+    // sort manager
+    private LinearLayoutManager manager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,7 +141,6 @@ public class SpotsActivity extends AppCompatActivity {
             FirebaseDatabase db = FirebaseDatabase.getInstance();
             databaseReference = db.getReference("cebuapp_tourist_spots");
             crudTouristSpots = new CRUDManageTouristSpots();
-            LinearLayoutManager manager = new LinearLayoutManager(this);
             recyclerView.setHasFixedSize(true);
             recyclerView.setLayoutManager(manager);
             adapter = new SpotsRVAdapter(this);
@@ -149,9 +158,11 @@ public class SpotsActivity extends AppCompatActivity {
     }
 
     private void castComponents() {
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         dialog = new ProgressDialog(this);
         dialog.setCanceledOnTouchOutside(false);
         handler = new Handler();
+        spotsList = new ArrayList<>();
 
         is_empty_list = findViewById(R.id.is_empty_list);
         recyclerView = findViewById(R.id.spots_rv);
@@ -160,6 +171,7 @@ public class SpotsActivity extends AppCompatActivity {
         addBtn = findViewById(R.id.add_btn);
         backBtn = findViewById(R.id.back_btn);
         is_empty_list.setVisibility(View.INVISIBLE);
+        mainProvinceSpinner = findViewById(R.id.food_spinner);
 
         // form
         img_input = findViewById(R.id.img_input);
@@ -175,6 +187,12 @@ public class SpotsActivity extends AppCompatActivity {
         addFormBody = findViewById(R.id.add_form);
         formAddBtn = findViewById(R.id.form_add_btn);
         formCancelBtn = findViewById(R.id.form_cancel_btn);
+
+        manager = new LinearLayoutManager(this);
+        manager.setReverseLayout(true);
+        manager.setStackFromEnd(true);
+
+        storageReference = FirebaseStorage.getInstance().getReference("Images");
     }
 
 
@@ -187,10 +205,37 @@ public class SpotsActivity extends AppCompatActivity {
 
         // header add job post
         addBtn.setOnClickListener(v-> {
-            addBtn.setVisibility(View.INVISIBLE);
-            backBtn.setVisibility(View.INVISIBLE);
-            mainBody.setVisibility(View.GONE);
-            addFormBody.setVisibility(View.VISIBLE);
+            PopupMenu popupMenu = new PopupMenu(SpotsActivity.this, addBtn);
+            popupMenu.inflate(R.menu.user_header_menu);
+            popupMenu.setOnMenuItemClickListener(item -> {
+                AppCompatActivity activity = (AppCompatActivity) v.getContext();
+                FragmentManager fragmentManager = activity.getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+                switch (item.getItemId()) {
+                    case R.id.menu_addPost:
+                        addBtn.setVisibility(View.INVISIBLE);
+                        backBtn.setVisibility(View.INVISIBLE);
+                        mainBody.setVisibility(View.GONE);
+                        addFormBody.setVisibility(View.VISIBLE);
+                        break;
+
+                    // if menu approve is clicked
+                    case R.id.menu_ownPosts:
+                        SpotsPostOwnedFragment ownedPosts = new SpotsPostOwnedFragment();
+                        fragmentTransaction.replace(R.id.framelayout, ownedPosts);
+                        fragmentTransaction.commit();
+                        break;
+
+                    case R.id.menu_ownFavs:
+                        SpotsFavoritesFragment favSpots = new SpotsFavoritesFragment();
+                        fragmentTransaction.replace(R.id.framelayout, favSpots);
+                        fragmentTransaction.commit();
+                        break;
+                }
+                return false;
+            });
+            popupMenu.show();
         });
 
         img_input.setOnClickListener(v-> {
@@ -206,13 +251,9 @@ public class SpotsActivity extends AppCompatActivity {
             tpProvinceVal = province_spinner.getSelectedItem().toString().trim();
             tpContactEmailVal = contact_email_input.getText().toString().trim();
             tpContactNumVal = contact_num_input.getText().toString().trim();
-            validateInputs();
 
-            if (errors.equals(false)) {
-                // save data ang upload image
-                storageReference = FirebaseStorage.getInstance().getReference("Images");
-                saveDataAndUploadImage(editTouristSpot);
-            }
+            // save data ang upload image
+            saveDataAndUploadImage(editTouristSpot);
         });
 
         // cancel form food area
@@ -220,6 +261,18 @@ public class SpotsActivity extends AppCompatActivity {
             isCancelAdding();
         });
 
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        provinceSpinner.setSelection(provinceSpinner.getSelectedItemPosition());
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                }, 300);
+            }
+        });
     }
 
     private void formSpinnerComponents() {
@@ -250,59 +303,6 @@ public class SpotsActivity extends AppCompatActivity {
         });
     }
 
-    private void validateInputs() {
-        errors = false;
-
-        if (tpTitleVal.isEmpty()) {
-            title_input.setError("Tourist Spot title is required.");
-            title_input.requestFocus();
-            errors = true;
-            return;
-        }
-
-        if (tpDescVal.isEmpty()) {
-            desc_input.setError("Tourist Spot description is required.");
-            desc_input.requestFocus();
-            errors = true;
-            return;
-        }
-
-        if (tpContactEmailVal.isEmpty()) {
-            contact_email_input.setError("Tourist Spot email is required.");
-            contact_email_input.requestFocus();
-            errors = true;
-            return;
-        }
-
-        if (!Patterns.EMAIL_ADDRESS.matcher(tpContactEmailVal).matches()) {
-            contact_email_input.setError("Please provide a valid email.");
-            contact_email_input.requestFocus();
-            errors = true;
-            return;
-        }
-
-        if (tpContactNumVal.isEmpty()) {
-            contact_email_input.setError("Tourist Spot number is required.");
-            contact_num_input.requestFocus();
-            errors = true;
-            return;
-        }
-
-        if (!HelperUtilities.isValidPhone(tpContactNumVal)) {
-            contact_num_input.setError("Tourist Spot number is invalid.");
-            contact_num_input.requestFocus();
-            errors = true;
-            return;
-        }
-
-        if (tpAddressVal.isEmpty()) {
-            address_input.setError("Tourist Spot address or landmark is required.");
-            address_input.requestFocus();
-            errors = true;
-            return;
-        }
-    }
-
     private void choosingOfPicture() {
         intent = new Intent();
         intent.setType("image/*");
@@ -331,10 +331,67 @@ public class SpotsActivity extends AppCompatActivity {
     }
 
     private void saveDataAndUploadImage(TouristSpot touristSpotEdit) {// construct data
-        dialog.setTitle("Submitting your Tourist Spot entry...");
-        dialog.show();
+        errors = false;
 
-        if (imageUri != null) {
+        if (tpTitleVal.isEmpty()) {
+            title_input.setError("Tourist Spot title is required.");
+            title_input.requestFocus();
+            errors = true;
+            return;
+        }
+
+        if (img_input.getResources().equals(R.drawable.custom_input_field) || imageUri == null) {
+            HelperUtilities.showOkAlert(SpotsActivity.this, "Please select an Image.");
+            errors = true;
+            return;
+        }
+
+        if (tpDescVal.isEmpty()) {
+            desc_input.setError("Tourist Spot description is required.");
+            desc_input.requestFocus();
+            errors = true;
+            return;
+        }
+
+        if (tpContactEmailVal.isEmpty()) {
+            contact_email_input.setError("Tourist Spot email is required.");
+            contact_email_input.requestFocus();
+            errors = true;
+            return;
+        }
+
+        if (!Patterns.EMAIL_ADDRESS.matcher(tpContactEmailVal).matches()) {
+            contact_email_input.setError("Please provide a valid email.");
+            contact_email_input.requestFocus();
+            errors = true;
+            return;
+        }
+
+        if (tpContactNumVal.isEmpty()) {
+            contact_num_input.setError("Tourist Spot number is required.");
+            contact_num_input.requestFocus();
+            errors = true;
+            return;
+        }
+
+        if (!HelperUtilities.isValidPhone(tpContactNumVal)) {
+            contact_num_input.setError("Tourist Spot number is invalid.");
+            contact_num_input.requestFocus();
+            errors = true;
+            return;
+        }
+
+        if (tpAddressVal.isEmpty()) {
+            address_input.setError("Tourist Spot address or landmark is required.");
+            address_input.requestFocus();
+            errors = true;
+            return;
+        }
+
+        if (!errors && errors.equals(false)) {
+            dialog.setTitle("Submitting your Tourist Spot entry...");
+            dialog.show();
+
             StorageReference storageReference2 = storageReference.child(System.currentTimeMillis() +'.'+ GetFileExtension(imageUri));
             UploadTask uploadTask = storageReference2.putFile(imageUri);
             uploadTask.addOnSuccessListener((OnSuccessListener) (taskSnapshot) -> {
@@ -346,15 +403,16 @@ public class SpotsActivity extends AppCompatActivity {
                     tpApproveVal = false;
                     tpImgVal = uri.toString();
                     tpPostedVal = getCurrentDate();
-                    String tpAuthorVal = firebaseUser.getEmail();;
-                    Integer pos = 0;
+                    String tpAuthorVal = firebaseUser.getEmail();
 
                     TouristSpot touristSpotData = new TouristSpot(tpApproveVal, tpAuthorVal, tpImgVal, tpAddressVal, tpContactEmailVal, tpContactNumVal,
-                            tpDescVal, tpPostedVal, tpProvinceVal, tpTitleVal, pos);
+                            tpDescVal, tpPostedVal, tpProvinceVal, tpTitleVal);
 
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
+                            dialog.dismiss();
+
                             // process adding
                             crudTouristSpots.add(touristSpotData).addOnSuccessListener(suc -> {
                                 // reset form
@@ -365,23 +423,16 @@ public class SpotsActivity extends AppCompatActivity {
                                     public void run() {
                                         HelperUtilities.showOkAlert(SpotsActivity.this,
                                                 "Your Tourist Spot entry was submitted successfully, our Admin will review your entry and post it once approved. Thanks!");
-
                                     }
                                 }, 300);
                             }).addOnFailureListener(fail -> {
                                 Toast.makeText(SpotsActivity.this,
                                         "Adding failed, please try again.", Toast.LENGTH_LONG).show();
                             });
-                            dialog.dismiss();
                         }
                     }, 300);
                 });
             });
-        } else {
-            dialog.dismiss();
-            Toast.makeText(this, "Please select an Image.", Toast.LENGTH_SHORT).show();
-            img_input.setFocusable(true);
-            img_input.requestFocus();
         }
     }
 
@@ -439,7 +490,6 @@ public class SpotsActivity extends AppCompatActivity {
 
     // start of main view
     private void mainProvinceSpinner() {
-        mainProvinceSpinner = findViewById(R.id.food_spinner);
         mainProvinceSpinnerRef = FirebaseDatabase.getInstance().getReference("cebuapp_provinces");
         mainProvinceSpinnerList = new ArrayList<>();
         mainProvinceSpinnerAdapter = new ArrayAdapter<String>(SpotsActivity.this, android.R.layout.simple_spinner_dropdown_item,
@@ -475,6 +525,11 @@ public class SpotsActivity extends AppCompatActivity {
                 dialog.setTitle("Fetching " + selectedCategory + "'s Tourist Spots.");
                 dialog.show();
 
+                // clear searchview value
+                if (searchView.getQuery() != "") {
+                    searchView.setQuery("", false);
+                }
+
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -504,7 +559,7 @@ public class SpotsActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 String selectedProvince = mainProvinceSpinner.getSelectedItem().toString();
-                dialog.setTitle("Searching '" + query + "' from '" + selectedProvince + "' province");
+                dialog.setTitle("Searching '" + query + "' from '" + selectedProvince + "'");
                 dialog.show();
 
                 handler.postDelayed(new Runnable() {
@@ -513,21 +568,25 @@ public class SpotsActivity extends AppCompatActivity {
                         crudTouristSpots.getSearchedWord(query).addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                ArrayList<TouristSpot> spotsList = new ArrayList<>();
+                                spotsList.clear();
                                 for (DataSnapshot data : snapshot.getChildren()) {
                                     TouristSpot spotsData = data.getValue(TouristSpot.class);
 
                                     // get only approved food areas
-                                    if (
-                                            spotsData.getApproved().equals(true)
-                                                    &&  spotsData.getTouristSpotProvince().equals(selectedProvince)
-                                    ) {
-                                        // set data
-                                        spotsData.setKey(data.getKey());
+                                    if (spotsData.getApproved().equals(true)) {
+                                        // get by selected province
+                                        if (spotsData.getTouristSpotProvince().equals(selectedProvince)) {
+                                            // append to list
+                                            spotsData.setKey(data.getKey());
+                                            spotsList.add(spotsData);
+                                            key = data.getKey();
 
-                                        // append to list
-                                        spotsList.add(spotsData);
-                                        key = data.getKey();
+                                        } else if (selectedProvince == "ALL") {
+                                            // append to list
+                                            spotsData.setKey(data.getKey());
+                                            spotsList.add(spotsData);
+                                            key = data.getKey();
+                                        }
                                     }
                                 }
 
@@ -569,7 +628,7 @@ public class SpotsActivity extends AppCompatActivity {
                         public void run() {
                             mainProvinceSpinner.setSelection(selectedProvincePos);
                         }
-                    }, 300);
+                    }, 50);
                 }
                 return false;
             }
@@ -577,76 +636,85 @@ public class SpotsActivity extends AppCompatActivity {
     }
 
     private void getAllSpots() {
-        crudTouristSpots.getAllApproved().addValueEventListener(new ValueEventListener() {
+        handler.postDelayed(new Runnable() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                ArrayList<TouristSpot> spotsList = new ArrayList<>();
-                for (DataSnapshot data : snapshot.getChildren()) {
-                    TouristSpot dataSpots = data.getValue(TouristSpot.class);
+            public void run() {
+                crudTouristSpots.getAllApproved().addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        spotsList.clear();
+                        for (DataSnapshot data : snapshot.getChildren()) {
+                            TouristSpot dataSpots = data.getValue(TouristSpot.class);
 
-                    // set data
-                    dataSpots.setKey(data.getKey());
+                            // set data
+                            dataSpots.setKey(data.getKey());
 
-                    // append to list
-                    spotsList.add(dataSpots);
-                    key = data.getKey();
-                }
+                            // append to list
+                            spotsList.add(dataSpots);
+                            key = data.getKey();
+                        }
 
-                if (spotsList.isEmpty() == true) {
-                    rvContainer.setVisibility(View.GONE);
-                    is_empty_list.setVisibility(View.VISIBLE);
-                } else {
-                    adapter.setItems(spotsList);
-                    adapter.notifyDataSetChanged();
-                    rvContainer.setVisibility(View.VISIBLE);
-                    is_empty_list.setVisibility(View.GONE);
-                }
-                dialog.dismiss();
+                        if (spotsList.isEmpty() == true) {
+                            rvContainer.setVisibility(View.GONE);
+                            is_empty_list.setVisibility(View.VISIBLE);
+                        } else {
+                            adapter.setItems(spotsList);
+                            adapter.notifyDataSetChanged();
+                            rvContainer.setVisibility(View.VISIBLE);
+                            is_empty_list.setVisibility(View.GONE);
+                        }
+                        dialog.dismiss();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        return;
+                    }
+                });
             }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                return;
-            }
-        });
+        }, 1000);
     }
 
     private void getAllSpotsByProvince(String provinceName, Integer spinnerPos) {
-        crudTouristSpots.getAllApproved().addValueEventListener(new ValueEventListener() {
+        handler.postDelayed(new Runnable() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                ArrayList<TouristSpot> spotsList = new ArrayList<>();
-                for (DataSnapshot data : snapshot.getChildren()) {
-                    TouristSpot dataSpots = data.getValue(TouristSpot.class);
+            public void run() {
+                crudTouristSpots.getAllApproved().addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        spotsList.clear();
+                        for (DataSnapshot data : snapshot.getChildren()) {
+                            TouristSpot dataSpots = data.getValue(TouristSpot.class);
 
-                    if (dataSpots.getTouristSpotProvince().equals(provinceName)) {
-                        // set data
-                        dataSpots.setKey(data.getKey());
-                        dataSpots.setPos(spinnerPos);
+                            if (dataSpots.getTouristSpotProvince().equals(provinceName)) {
+                                // set data
+                                dataSpots.setKey(data.getKey());
 
-                        // append to list
-                        spotsList.add(dataSpots);
-                        key = data.getKey();
+                                // append to list
+                                spotsList.add(dataSpots);
+                                key = data.getKey();
+                            }
+                        }
+
+                        if (spotsList.isEmpty() == true) {
+                            rvContainer.setVisibility(View.GONE);
+                            is_empty_list.setVisibility(View.VISIBLE);
+                        } else {
+                            adapter.setItems(spotsList);
+                            adapter.notifyDataSetChanged();
+                            rvContainer.setVisibility(View.VISIBLE);
+                            is_empty_list.setVisibility(View.GONE);
+                        }
+                        dialog.dismiss();
                     }
-                }
 
-                if (spotsList.isEmpty() == true) {
-                    rvContainer.setVisibility(View.GONE);
-                    is_empty_list.setVisibility(View.VISIBLE);
-                } else {
-                    adapter.setItems(spotsList);
-                    adapter.notifyDataSetChanged();
-                    rvContainer.setVisibility(View.VISIBLE);
-                    is_empty_list.setVisibility(View.GONE);
-                }
-                dialog.dismiss();
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        return;
+                    }
+                });
             }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                return;
-            }
-        });
+        }, 1000);
     }
 
     private boolean isConnectedToInternet() {
@@ -661,8 +729,16 @@ public class SpotsActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        startActivity(new Intent(new Intent(getApplicationContext(), HomeActivity.class)));
-        finish();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        Fragment fragment = fragmentManager.findFragmentById(R.id.framelayout);
+        if (fragment != null) {
+            fragmentTransaction.remove(fragment);
+            fragmentTransaction.commit();
+        } else {
+            super.onBackPressed();
+            startActivity(new Intent(new Intent(getApplicationContext(), HomeActivity.class)));
+            finish();
+        }
     }
 }

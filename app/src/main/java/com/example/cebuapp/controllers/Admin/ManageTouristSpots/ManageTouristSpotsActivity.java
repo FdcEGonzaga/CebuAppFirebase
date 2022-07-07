@@ -3,12 +3,14 @@ package com.example.cebuapp.controllers.Admin.ManageTouristSpots;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Patterns;
 import android.view.View;
@@ -24,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -32,6 +35,9 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.cebuapp.Helper.HelperUtilities;
 import com.example.cebuapp.Helper.ShowImageUrl;
 import com.example.cebuapp.R;
+import com.example.cebuapp.controllers.Admin.ManageProvinces.ManageProvincesActivity;
+import com.example.cebuapp.controllers.User.JobPosts.JobaPostsActivity;
+import com.example.cebuapp.controllers.User.TouristSpots.SpotsActivity;
 import com.example.cebuapp.model.TouristSpot;
 import com.example.cebuapp.controllers.HomeActivity;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -48,12 +54,8 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 
 public class ManageTouristSpotsActivity extends AppCompatActivity {
     private FirebaseUser firebaseUser;
@@ -90,9 +92,11 @@ public class ManageTouristSpotsActivity extends AppCompatActivity {
     private ProgressDialog dialog;
     private ImageButton backBtn, addNewBtn;
     private Intent intent;
-    private boolean isLoadMore = false;
+    private boolean isLoadMore = false, errors = false;
     private String key = null;
-    private TouristSpot touristSpotEdit;
+    private TouristSpot editTouristSpot;
+    private LinearLayoutManager manager;
+    private Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +104,8 @@ public class ManageTouristSpotsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_manage_touristspots);
 
         if (isConnectedToInternet()) {
+            editTouristSpot = (TouristSpot) getIntent().getSerializableExtra("editTouristSpot");
+
             // cast components
             castComponents();
             setSpinners();
@@ -107,8 +113,7 @@ public class ManageTouristSpotsActivity extends AppCompatActivity {
             loadData();
 
             // check intent extras
-            touristSpotEdit = (TouristSpot) getIntent().getSerializableExtra("touristSpotEdit");
-            if (touristSpotEdit != null) {
+            if (editTouristSpot != null) {
                 // show form and hide rv
                 add_edit_form.setVisibility(View.VISIBLE);
                 swipeRefreshLayout.setVisibility(View.GONE);
@@ -118,12 +123,13 @@ public class ManageTouristSpotsActivity extends AppCompatActivity {
                 // reuse form for editing
                 form_title.setText("Editing a Tourist Spot");
                 ShowImageUrl showImageUrl = (ShowImageUrl) new ShowImageUrl((ImageView) findViewById(R.id.img_input))
-                        .execute(touristSpotEdit.getTouristSpotImg());
-                title_input.setText(touristSpotEdit.getTouristSpotTitle());
-                desc_input.setText(touristSpotEdit.getTouristSpotDescription());
-                address_input.setText(touristSpotEdit.getTouristSpotAddress());
-                contact_email_input.setText(touristSpotEdit.getTouristSpotContactEmail());
-                contact_num_input.setText(touristSpotEdit.getTouristSpotContactNum());
+                        .execute(editTouristSpot.getTouristSpotImg());
+                img_input.setImageURI(Uri.parse(editTouristSpot.getTouristSpotImg()));
+                title_input.setText(editTouristSpot.getTouristSpotTitle());
+                desc_input.setText(editTouristSpot.getTouristSpotDescription());
+                address_input.setText(editTouristSpot.getTouristSpotAddress());
+                contact_email_input.setText(editTouristSpot.getTouristSpotContactEmail());
+                contact_num_input.setText(editTouristSpot.getTouristSpotContactNum());
                 title_input.requestFocus();
                 action_btn.setText("EDIT");
             }
@@ -133,13 +139,19 @@ public class ManageTouristSpotsActivity extends AppCompatActivity {
     }
 
     private void setListeners() {
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+
         img_input.setOnClickListener(v-> {
             choosingOfPicture();
         });
 
         // job field add/edit btn is clicked
         action_btn.setOnClickListener(v -> {
-
             // get value
             tpTitleVal = title_input.getText().toString().trim();
             tpDescVal = desc_input.getText().toString().trim();
@@ -149,9 +161,8 @@ public class ManageTouristSpotsActivity extends AppCompatActivity {
             tpProvinceVal = provinceSpinner.getSelectedItem().toString().trim();
             String isPublish = approve_spinner.getSelectedItem().toString().trim();
             tpApproveVal = (isPublish.equals("Publish")) ? true : false;
-            validateInputs();
 
-            saveDataAndUploadImage(touristSpotEdit);
+            saveDataAndUploadImage(editTouristSpot);
         });
 
         // add new btn
@@ -176,9 +187,11 @@ public class ManageTouristSpotsActivity extends AppCompatActivity {
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                int totalItem = linearLayoutManager.getItemCount();
-                int lastVisible = linearLayoutManager.findLastCompletelyVisibleItemPosition();
+                manager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                manager.setReverseLayout(true);
+                manager.setStackFromEnd(true);
+                int totalItem = manager.getItemCount();
+                int lastVisible = manager.findLastCompletelyVisibleItemPosition();
                 if (totalItem < lastVisible+3) {
                     if (!isLoadMore) {
                         isLoadMore = true;
@@ -190,11 +203,13 @@ public class ManageTouristSpotsActivity extends AppCompatActivity {
 
         // cancel btn
         cancel_btn.setOnClickListener(v -> {
-            addNewBtn.setVisibility(View.VISIBLE);
-            backBtn.setVisibility(View.VISIBLE);
-            // hide form and show rv
-            add_edit_form.setVisibility(View.GONE);
-            swipeRefreshLayout.setVisibility(View.VISIBLE);
+            String actionVal = "";
+            if (action_btn.getText().equals("ADD")) {
+                actionVal = "adding";
+            } else {
+                actionVal = "editing";
+            }
+            isCancelAdding(actionVal);
         });
 
         // back to home btn
@@ -245,13 +260,17 @@ public class ManageTouristSpotsActivity extends AppCompatActivity {
         crudTouristSpots = new CRUDManageTouristSpots();
         dialog = new ProgressDialog(this);
         dialog.setCanceledOnTouchOutside(false);
+        handler = new Handler();
 
         // showing the recycler view
-        LinearLayoutManager manager = new LinearLayoutManager(this);
+        manager = new LinearLayoutManager(this);
+        manager.setReverseLayout(true);
+        manager.setStackFromEnd(true);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(manager);
         adapter = new ManageTouristSpotsRVAdapter(this);
         recyclerView.setAdapter(adapter);
+
     }
 
     private void setSpinners() {
@@ -272,6 +291,10 @@ public class ManageTouristSpotsActivity extends AppCompatActivity {
                         provinceSpinnerList.add(data.getValue().toString());
                     }
                 }
+                if (editTouristSpot != null && editTouristSpot.getTouristSpotProvince() != null) {
+                    int ppos = provinceSpinnerAdapter.getPosition(editTouristSpot.getTouristSpotProvince());
+                    provinceSpinner.setSelection(ppos);
+                }
                 provinceSpinnerAdapter.notifyDataSetChanged();
             }
 
@@ -284,10 +307,16 @@ public class ManageTouristSpotsActivity extends AppCompatActivity {
         // approval spinner
         ArrayList<String> approveSpinner = new ArrayList<>();
         approveSpinner.add("Publish");
-        approveSpinner.add("Pending");
+        approveSpinner.add("Hidden");
         ArrayAdapter<String> approveSpinnerAdapter = new ArrayAdapter<>(ManageTouristSpotsActivity.this,
                 android.R.layout.simple_spinner_dropdown_item, approveSpinner);
         approve_spinner.setAdapter(approveSpinnerAdapter);
+        approve_spinner.setAdapter(approveSpinnerAdapter);
+        if (editTouristSpot != null) {
+            String isPublished = (editTouristSpot.getApproved().equals(true)) ? "Publish" : "Hidden";
+            int apos = approveSpinnerAdapter.getPosition(isPublished);
+            approve_spinner.setSelection(apos);
+        }
     }
 
     private void choosingOfPicture() {
@@ -317,11 +346,69 @@ public class ManageTouristSpotsActivity extends AppCompatActivity {
         return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri)) ;
     }
 
-    private void saveDataAndUploadImage(TouristSpot touristSpotEdit) {// construct data
-        dialog.setTitle("Saving Food Area data...");
-        dialog.show();
+    private void saveDataAndUploadImage(TouristSpot editTouristSpot) {// construct data
+        errors = false;
+        if (tpTitleVal.isEmpty()) {
+            title_input.setError("Tourist Spot title is required.");
+            title_input.requestFocus();
+            errors = true;
+            return;
+        }
 
-        if (imageUri != null) {
+        if (img_input.getResources().equals(R.drawable.custom_input_field) || imageUri == null) {
+            HelperUtilities.showOkAlert(ManageTouristSpotsActivity.this, "Please select an Image.");
+            errors = true;
+            return;
+        }
+
+        if (tpDescVal.isEmpty()) {
+            desc_input.setError("Tourist Spot description is required.");
+            desc_input.requestFocus();
+            errors = true;
+            return;
+        }
+
+
+        if (tpContactEmailVal.isEmpty()) {
+            contact_email_input.setError("Tourist Spot email is required.");
+            contact_email_input.requestFocus();
+            errors = true;
+            return;
+        }
+
+        if (!Patterns.EMAIL_ADDRESS.matcher(tpContactEmailVal).matches()) {
+            contact_email_input.setError("Please provide a valid email.");
+            contact_email_input.requestFocus();
+            errors = true;
+            return;
+        }
+
+        if (tpContactNumVal.isEmpty()) {
+            contact_num_input.setError("Tourist Spot number is required.");
+            contact_num_input.requestFocus();
+            errors = true;
+            return;
+        }
+
+        if (!HelperUtilities.isValidPhone(tpContactNumVal)) {
+            contact_num_input.setError("Tourist Spot number is invalid.");
+            contact_num_input.requestFocus();
+            errors = true;
+            return;
+        }
+
+        if (tpAddressVal.isEmpty()) {
+            address_input.setError("Tourist Spot landmark is required.");
+            address_input.requestFocus();
+            errors = true;
+            return;
+        }
+
+        if (!errors && errors == false) {
+
+            dialog.setTitle("Saving Tourist Spot data...");
+            dialog.show();
+
             StorageReference storageReference2 = storageReference.child(System.currentTimeMillis() +'.'+ GetFileExtension(imageUri));
             UploadTask uploadTask = storageReference2.putFile(imageUri);
             uploadTask.addOnSuccessListener((OnSuccessListener) (taskSnapshot) -> {
@@ -332,58 +419,61 @@ public class ManageTouristSpotsActivity extends AppCompatActivity {
                     // construct img data
                     tpImgVal = uri.toString();
                     tpPostedVal = HelperUtilities.getCurrentDate();
-                    String tpAuthorVal = firebaseUser.getEmail();;
-                    Integer pos = 0;
+                    String tpAuthorVal = firebaseUser.getEmail();
 
                     TouristSpot touristSpotData = new TouristSpot(tpApproveVal, tpAuthorVal, tpImgVal, tpAddressVal, tpContactEmailVal, tpContactNumVal,
-                            tpDescVal, tpPostedVal, tpProvinceVal, tpTitleVal, pos);
+                            tpDescVal, tpPostedVal, tpProvinceVal, tpTitleVal);
 
-                    // update
-                    if (touristSpotEdit != null && action_btn.getText().equals("EDIT")) {
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                dialog.dismiss();
 
-                        HashMap<String, Object> hashMap = new HashMap<>();
-                        hashMap.put("approved", tpApproveVal);
-                        hashMap.put("touristSpotImg", tpImgVal);
-                        hashMap.put("touristSpotAddress", tpAddressVal);
-                        hashMap.put("touristSpotContactEmail", tpContactEmailVal);
-                        hashMap.put("touristSpotContactNum", tpContactNumVal);
-                        hashMap.put("touristSpotDescription", tpDescVal);
-                        hashMap.put("touristSpotPosted", tpPostedVal);
-                        hashMap.put("touristSpotProvince", tpProvinceVal);
-                        hashMap.put("touristSpotTitle", tpTitleVal);
-                        crudTouristSpots.update(touristSpotEdit.getKey(), hashMap).addOnSuccessListener(suc -> {
-                            Toast.makeText(ManageTouristSpotsActivity.this,
-                                    "Tourist Spot was updated successfully!", Toast.LENGTH_SHORT).show();
-                            resetFormInputs();
+                                // update or edit
+                                if (editTouristSpot != null && action_btn.getText().equals("EDIT")) {
+                                    HashMap<String, Object> hashMap = new HashMap<>();
+                                    hashMap.put("approved", tpApproveVal);
+                                    hashMap.put("touristSpotImg", tpImgVal);
+                                    hashMap.put("touristSpotAddress", tpAddressVal);
+                                    hashMap.put("touristSpotContactEmail", tpContactEmailVal);
+                                    hashMap.put("touristSpotContactNum", tpContactNumVal);
+                                    hashMap.put("touristSpotDescription", tpDescVal);
+                                    hashMap.put("touristSpotPosted", tpPostedVal);
+                                    hashMap.put("touristSpotProvince", tpProvinceVal);
+                                    hashMap.put("touristSpotTitle", tpTitleVal);
+                                    crudTouristSpots.update(editTouristSpot.getKey(), hashMap).addOnSuccessListener(suc -> {
+                                        Toast.makeText(ManageTouristSpotsActivity.this,
+                                                "Tourist Spot was updated successfully!", Toast.LENGTH_SHORT).show();
+                                        resetFormInputs();
 
-                        }).addOnFailureListener(fail -> {
-                            Toast.makeText(ManageTouristSpotsActivity.this,
-                                    "Updating failed, please try again.", Toast.LENGTH_LONG).show();
-                        });
+                                    }).addOnFailureListener(fail -> {
+                                        Toast.makeText(ManageTouristSpotsActivity.this,
+                                                "Updating failed, please try again.", Toast.LENGTH_LONG).show();
+                                    });
 
-                        // insert or add new prov
-                    } else {
-                        crudTouristSpots.add(touristSpotData).addOnSuccessListener(suc -> {
-                            Toast.makeText(ManageTouristSpotsActivity.this,
-                                    "Tourist Spot was added successfully!", Toast.LENGTH_SHORT).show();
-                            resetFormInputs();
+                                // insert or add new prov
+                                } else {
+                                    crudTouristSpots.add(touristSpotData).addOnSuccessListener(suc -> {
+                                        Toast.makeText(ManageTouristSpotsActivity.this,
+                                                "Tourist Spot was added successfully!", Toast.LENGTH_SHORT).show();
+                                        resetFormInputs();
 
-                        }).addOnFailureListener(fail -> {
-                            Toast.makeText(ManageTouristSpotsActivity.this,
-                                    "Adding failed, please try again.", Toast.LENGTH_LONG).show();
-                        });
-                    }
-                    // hide form and show data
-                    add_edit_form.setVisibility(View.GONE);
-                    swipeRefreshLayout.setVisibility(View.VISIBLE);
-                    // show main btns
-                    addNewBtn.setVisibility(View.VISIBLE);
-                    backBtn.setVisibility(View.VISIBLE);
+                                    }).addOnFailureListener(fail -> {
+                                        Toast.makeText(ManageTouristSpotsActivity.this,
+                                                "Adding failed, please try again.", Toast.LENGTH_LONG).show();
+                                    });
+                                }
+
+                                // hide form and show data
+                                add_edit_form.setVisibility(View.GONE);
+                                swipeRefreshLayout.setVisibility(View.VISIBLE);
+                                // show main btns
+                                addNewBtn.setVisibility(View.VISIBLE);
+                                backBtn.setVisibility(View.VISIBLE);
+                            }
+                        }, 500);
                 });
             });
-        } else {
-            dialog.dismiss();
-            Toast.makeText(this, "Please select an Image.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -394,50 +484,12 @@ public class ManageTouristSpotsActivity extends AppCompatActivity {
         address_input.setText("");
         contact_email_input.setText("");
         contact_num_input.setText("");
-        action_btn.setText("Add");
+        action_btn.setText("ADD");
         add_edit_form.setVisibility(View.GONE);
         // show form and main btns
         swipeRefreshLayout.setVisibility(View.VISIBLE);
         addNewBtn.setVisibility(View.VISIBLE);
         backBtn.setVisibility(View.VISIBLE);
-    }
-
-    private void validateInputs() {
-        if (tpTitleVal.isEmpty()) {
-            title_input.setError("Tourist Spot title is required.");
-            title_input.requestFocus();
-            return;
-        }
-
-        if (tpDescVal.isEmpty()) {
-            desc_input.setError("Tourist Spot description is required.");
-            desc_input.requestFocus();
-            return;
-        }
-
-        if (tpAddressVal.isEmpty()) {
-            address_input.setError("Tourist Spot landmark is required.");
-            address_input.requestFocus();
-            return;
-        }
-
-        if (tpContactEmailVal.isEmpty()) {
-            contact_email_input.setError("Tourist Spot email is required.");
-            contact_email_input.requestFocus();
-            return;
-        }
-
-        if (!Patterns.EMAIL_ADDRESS.matcher(tpContactEmailVal).matches()) {
-            contact_email_input.setError("Please provide a valid email.");
-            contact_email_input.requestFocus();
-            return;
-        }
-
-        if (tpContactNumVal.isEmpty()) {
-            contact_email_input.setError("Tourist Spot number is required.");
-            contact_num_input.requestFocus();
-            return;
-        }
     }
 
     private void loadData() {
@@ -467,8 +519,8 @@ public class ManageTouristSpotsActivity extends AppCompatActivity {
                     isLoadMore = false;
                     swipeRefreshLayout.setVisibility(View.VISIBLE);
                     is_empty_list.setVisibility(View.GONE);
-                    swipeRefreshLayout.setRefreshing(false);
                 }
+                swipeRefreshLayout.setRefreshing(false);
                 dialog.dismiss();
             }
 
@@ -477,6 +529,35 @@ public class ManageTouristSpotsActivity extends AppCompatActivity {
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
+    }
+
+    private void isCancelAdding(String actionVal) {
+        new AlertDialog.Builder(ManageTouristSpotsActivity.this)
+                .setTitle("CebuApp")
+                .setMessage("Are you sure you want to cancel " + actionVal + " Tourist Spot?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                title_input.setText("");
+                                addNewBtn.setVisibility(View.VISIBLE);
+                                backBtn.setVisibility(View.VISIBLE);
+                                // hide form and show rv
+                                add_edit_form.setVisibility(View.GONE);
+                                swipeRefreshLayout.setVisibility(View.VISIBLE);
+                            }
+                        }, 300);
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                }).create().show();
     }
 
     private boolean isConnectedToInternet() {

@@ -32,19 +32,20 @@
 
             <TextView
                 android:id="@+id/user_greeting"
-                android:layout_width="80dp"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:text="Hi, User!"
+                android:text="Hi, there!"
                 android:textColor="@color/whiter"
                 android:layout_marginTop="30dp"
                 android:textStyle="bold"
                 android:textSize="13sp"
+                android:maxLines="1"
                 android:layout_weight="1"
                 />
 
             <ImageView
                 android:id="@+id/user_home_img"
-                android:layout_width="90dp"
+                android:layout_width="70dp"
                 android:layout_height="90dp"
                 android:src="@drawable/logo"
                 android:layout_gravity="center"
@@ -53,7 +54,7 @@
 
             <TextView
                 android:id="@+id/user_logout"
-                android:layout_width="80dp"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:text="Logout"
                 android:textColor="@color/whiter"
@@ -79,6 +80,7 @@
             android:background="@drawable/custom_bg_rounded_white"
             android:textSize="18sp" />
 
+        <!-- User homepage menu-->
         <ScrollView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
@@ -318,6 +320,7 @@
         android:background="@drawable/sinulogbg"
         android:visibility="visible">
 
+        <!-- heading -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -363,6 +366,7 @@
                 />
         </LinearLayout>
 
+        <!-- buttons -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -445,16 +449,6 @@
             android:layout_marginRight="10dp"
             android:layout_marginBottom="20dp"
             android:text="Manage Tourist Spots" />
-
-        <Button
-            android:id="@+id/manage_admins"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/custom_btn_rounded"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="20dp"
-            android:text="Manage Admins" />
 
     </LinearLayout>
 

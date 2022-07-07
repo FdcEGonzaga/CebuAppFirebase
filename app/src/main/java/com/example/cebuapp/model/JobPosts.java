@@ -20,13 +20,12 @@ public class JobPosts implements Serializable {
     private String jobPostJobField;
     private String jobPostProvince;
     private String jobPostLink;
-    private Integer spinnerPos;
 
     public JobPosts() {}
 
     public JobPosts(Boolean approved, String jobAuthor, String jobPostImg, String jobPostTitle, String jobPostDescription, String jobPostPosted, String jobPostYearExp,
                     String jobPostSalary, String jobPostCompany, String jobPostCompanyDetails, String jobPostJobField,
-                    String jobPostProvince, String jobPostLink, Integer spinnerPos) {
+                    String jobPostProvince, String jobPostLink) {
         this.approved = approved;
         this.jobAuthor = jobAuthor;
         this.jobPostImg = jobPostImg;
@@ -40,7 +39,6 @@ public class JobPosts implements Serializable {
         this.jobPostJobField = jobPostJobField;
         this.jobPostProvince = jobPostProvince;
         this.jobPostLink = jobPostLink;
-        this.spinnerPos = spinnerPos;
     }
 
     public String getJobAuthor() {
@@ -49,14 +47,6 @@ public class JobPosts implements Serializable {
 
     public void setJobAuthor(String jobAuthor) {
         this.jobAuthor = jobAuthor;
-    }
-
-    public Integer getSpinnerPos() {
-        return spinnerPos;
-    }
-
-    public void setSpinnerPos(Integer spinnerPos) {
-        this.spinnerPos = spinnerPos;
     }
 
     public Boolean getApproved() {
