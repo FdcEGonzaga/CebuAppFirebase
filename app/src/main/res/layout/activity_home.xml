@@ -15,9 +15,9 @@
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
         android:paddingBottom="20dp"
-        android:visibility="visible"
         android:background="@drawable/sinulogbg2"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="visible">
 
         <!-- User homepage header-->
         <LinearLayout
@@ -318,7 +318,7 @@
         android:paddingBottom="20dp"
         android:orientation="vertical"
         android:background="@drawable/sinulogbg"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <!-- heading -->
         <LinearLayout

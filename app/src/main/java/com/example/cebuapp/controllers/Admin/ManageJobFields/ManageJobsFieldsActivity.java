@@ -104,12 +104,7 @@ public class ManageJobsFieldsActivity extends AppCompatActivity {
 
         // cancel btn
         cancel_btn.setOnClickListener(v -> {
-            String actionVal = "";
-            if (jf_action_btn.getText().equals("ADD")) {
-                actionVal = "adding";
-            } else {
-                actionVal = "editing";
-            }
+            String actionVal = getActionValue();
             isCancelAdding(actionVal);
         });
 
@@ -209,6 +204,16 @@ public class ManageJobsFieldsActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+
+    private String getActionValue() {
+        String actionVal = "";
+        if (jf_action_btn.getText().equals("ADD")) {
+            actionVal = "adding";
+        } else {
+            actionVal = "editing";
+        }
+        return actionVal;
     }
 
     private void castComponents() {
@@ -327,10 +332,15 @@ public class ManageJobsFieldsActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        intent = new Intent(new Intent(ManageJobsFieldsActivity.this, HomeActivity.class));
-        intent.putExtra("isFromMngJobPostActivity", true);
-        startActivity(intent);
-        finish();
+        if (backBtn.getVisibility() == View.INVISIBLE) {
+            String actionVal = getActionValue();
+            isCancelAdding(actionVal);
+        } else {
+            super.onBackPressed();
+            intent = new Intent(new Intent(ManageJobsFieldsActivity.this, HomeActivity.class));
+            intent.putExtra("isFromMngJobPostActivity", true);
+            startActivity(intent);
+            finish();
+        }
     }
 }

@@ -147,7 +147,7 @@ public class ManageProvincesActivity extends AppCompatActivity {
 
         // cancel btn
         cancel_btn.setOnClickListener(v -> {
-            String actionVal = "";
+            String actionVal = getActionValue();
             if (province_action_btn.getText().equals("ADD")) {
                 actionVal = "adding";
             } else {
@@ -244,6 +244,16 @@ public class ManageProvincesActivity extends AppCompatActivity {
         });
     }
 
+    private String getActionValue() {
+        String actionVal = "";
+        if (province_action_btn.getText().equals("ADD")) {
+            actionVal = "adding";
+        } else {
+            actionVal = "editing";
+        }
+        return actionVal;
+    }
+
     private void isCancelAdding(String actionVal) {
         new AlertDialog.Builder(ManageProvincesActivity.this)
                 .setTitle("CebuApp")
@@ -325,9 +335,15 @@ public class ManageProvincesActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        // go back to admin homepage
-        Intent intent = new Intent(ManageProvincesActivity.this, HomeActivity.class);
-        startActivity(intent);
-        finish();
+        if (backBtn.getVisibility() == View.INVISIBLE) {
+            String actionVal = getActionValue();
+            isCancelAdding(actionVal);
+        } else {
+            super.onBackPressed();
+            // go back to admin homepage
+            Intent intent = new Intent(ManageProvincesActivity.this, HomeActivity.class);
+            startActivity(intent);
+            finish();
+        }
     }
 }

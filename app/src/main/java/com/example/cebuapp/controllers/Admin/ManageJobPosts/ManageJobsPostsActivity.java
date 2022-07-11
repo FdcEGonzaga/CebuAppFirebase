@@ -41,6 +41,7 @@ import com.example.cebuapp.Helper.DataFetcher;
 import com.example.cebuapp.Helper.HelperUtilities;
 import com.example.cebuapp.Helper.ShowImageUrl;
 import com.example.cebuapp.R;
+import com.example.cebuapp.controllers.Admin.ManageFoodAreas.ManageFoodAreasActivity;
 import com.example.cebuapp.controllers.User.JobPosts.JobaPostsActivity;
 import com.example.cebuapp.controllers.User.TouristSpots.SpotsActivity;
 import com.example.cebuapp.model.JobPosts;
@@ -79,13 +80,14 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
     private EditText jp_title_input, jp_desc_input, jp_exp_input, jp_salary_input, jp_link_input, jp_company_input,
             jp_company_dets_input;
     private String jobPostImgVal, jobPostTitleVal, jobPostDescVal, jobPostPostedVal, jobPostExpVal, jobPostSalaryVal,
-            jobPostProvinceVal, jobPostCompanyVal, jobPostCompanyDetsVal, jobPostFieldsVal, jobPostLinkVal;
+            jobPostProvinceVal, jobPostCompanyVal, jobPostCompanyDetsVal, jobPostFieldsVal, jobPostLinkVal, jobAuthorVal;
     private Boolean jobPostApproveVal, errors;
     private JobPosts jobPostsData;
     private Spinner jp_approve_spinner;
     private ScrollView add_edit_form;
     private Button jp_action_btn, cancel_btn;
     private JobPosts editJobPost;
+    private Handler handler;
 
     // Image uploading
     private Uri imageUri;
@@ -145,6 +147,8 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
                 form_title.setText("Editing a Job Post");
                 ShowImageUrl showImageUrl = (ShowImageUrl) new ShowImageUrl((ImageView) findViewById(R.id.jp_img_input))
                         .execute(editJobPost.getJobPostImg());
+                imageUri = Uri.parse(editJobPost.getJobPostImg());
+                jp_img_input.setImageURI(imageUri);
                 jp_title_input.setText(editJobPost.getJobPostTitle());
                 jp_desc_input.setText(editJobPost.getJobPostDescription());
                 jp_exp_input.setText(editJobPost.getJobPostYearExp());
@@ -212,9 +216,11 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
         // add new btn
         addNewBtn.setOnClickListener(v -> {
             resetFormInputs();
+
             // hide main btns
             addNewBtn.setVisibility(View.INVISIBLE);
             backBtn.setVisibility(View.INVISIBLE);
+
             // show form and hide rv
             add_edit_form.setVisibility(View.VISIBLE);
             swipeRefreshLayout.setVisibility(View.GONE);
@@ -222,12 +228,7 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
 
         // cancel btn
         cancel_btn.setOnClickListener(v -> {
-            String actionVal = "";
-            if (jp_action_btn.getText().equals("ADD")) {
-                actionVal = "adding";
-            } else {
-                actionVal = "editing";
-            }
+            String actionVal = getActionValue();
             isCancelAdding(actionVal);
         });
 
@@ -238,6 +239,16 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
+    }
+
+    private String getActionValue() {
+        String res = "";
+        if (jp_action_btn.getText().equals("ADD")) {
+            res = "adding";
+        } else {
+            res = "editing";
+        }
+        return res;
     }
 
     private void castComponents() {
@@ -303,7 +314,7 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
         crudJobPosts = new CRUDManageJobPosts();
         dialog = new ProgressDialog(this);
         dialog.setCanceledOnTouchOutside(false);
-
+        handler = new Handler();
     }
 
     private void choosingOfPicture() {
@@ -391,80 +402,92 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
             return;
         }
 
+        // check if no changes
+        if (
+                jobPostApproveVal.equals(editJobPost.getApproved()) && imageUri.toString().equals(editJobPost.getJobPostImg())
+                && jobPostTitleVal.equals(editJobPost.getJobPostTitle()) && jobPostDescVal.equals(editJobPost.getJobPostDescription())
+                && jobPostExpVal.equals(editJobPost.getJobPostYearExp()) && jobPostSalaryVal.equals(editJobPost.getJobPostSalary())
+                && jobPostCompanyVal.equals(editJobPost.getJobPostCompany()) && jobPostCompanyDetsVal.equals(editJobPost.getJobPostCompanyDetails())
+                && jobPostFieldsVal.equals(editJobPost.getJobPostJobField()) && jobPostProvinceVal.equals(editJobPost.getJobPostProvince())
+                && jobPostLinkVal.equals(editJobPost.getJobPostLink())
+        ) {
+            HelperUtilities.showOkAlert(ManageJobsPostsActivity.this, "Please make some changes to the data.");
+            errors = true;
+            return;
+        }
+
         if (!errors && errors.equals(false)) {
             dialog.setTitle("Saving Job Post data...");
             dialog.show();
 
-            StorageReference storageReference2 = storageReference.child(System.currentTimeMillis() + "." + GetFileExtension(imageUri));
-            UploadTask uploadTask = storageReference2.putFile(imageUri);
-            uploadTask.addOnSuccessListener((OnSuccessListener) (taskSnapshot) -> {
-                // get the image uri
-                Task<Uri> downloadUri = storageReference2.getDownloadUrl();
-
-                downloadUri.addOnSuccessListener((OnSuccessListener) (uri) ->{
-                    // construct img uri data
-                    jobPostImgVal = uri.toString();
-                    jobPostPostedVal = HelperUtilities.getCurrentDate();
-                    String jobAuthorVal = firebaseUser.getEmail();
-
-                    jobPostsData = new JobPosts(jobPostApproveVal, jobAuthorVal, jobPostImgVal, jobPostTitleVal, jobPostDescVal, jobPostPostedVal, jobPostExpVal,
-                            jobPostSalaryVal, jobPostCompanyVal, jobPostCompanyDetsVal, jobPostFieldsVal,
-                            jobPostProvinceVal, jobPostLinkVal);
-
-                    Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            dialog.dismiss();
-                            // editing Job post
-                            if (editJobPost != null && jp_action_btn.getText().equals("EDIT")) {
-                                HashMap<String, Object> hashMap = new HashMap<>();
-                                hashMap.put("approved", jobPostApproveVal);
-                                hashMap.put("jobPostTitle", jobPostTitleVal);
-                                hashMap.put("jobPostImg", jobPostImgVal);
-                                hashMap.put("jobPostDescription", jobPostDescVal);
-                                hashMap.put("jobPostPosted", jobPostPostedVal);
-                                hashMap.put("jobPostYearExp", jobPostExpVal);
-                                hashMap.put("jobPostSalary", jobPostSalaryVal);
-                                hashMap.put("jobPostCompany", jobPostCompanyVal);
-                                hashMap.put("jobPostCompanyDetails", jobPostCompanyDetsVal);
-                                hashMap.put("jobPostJobField", jobPostFieldsVal);
-                                hashMap.put("jobPostProvince", jobPostProvinceVal);
-                                hashMap.put("jobPostLink", jobPostLinkVal);
-                                crudJobPosts.update(editJobPost.getKey(), hashMap).addOnSuccessListener(suc -> {
-                                    Toast.makeText(ManageJobsPostsActivity.this,
-                                            "Job post was edited successfully!", Toast.LENGTH_SHORT).show();
-                                    resetFormInputs();
-
-                                }).addOnFailureListener(fail -> {
-                                    Toast.makeText(ManageJobsPostsActivity.this,
-                                            "Editing failed, please try again.", Toast.LENGTH_LONG).show();
-                                });
-
-                                // adding or inserting job post
-                            } else {
-                                String jobPostSaveId = databaseReference.push().getKey();
-                                databaseReference.child(jobPostSaveId).setValue(jobPostsData)
-                                        .addOnSuccessListener(suc -> {
-                                            Toast.makeText(ManageJobsPostsActivity.this,
-                                                    "Job Post was added successfully!", Toast.LENGTH_SHORT).show();
-                                            resetFormInputs();
-
-                                        }).addOnFailureListener(fail -> {
-                                            Toast.makeText(ManageJobsPostsActivity.this,
-                                                    "Adding failed, please try again.", Toast.LENGTH_LONG).show();
-                                        });
-                            }
-                            // after editing or adding, show main btns
-                            addNewBtn.setVisibility(View.VISIBLE);
-                            backBtn.setVisibility(View.VISIBLE);
-                            // hide form and show newly updated rv
-                            add_edit_form.setVisibility(View.GONE);
-                            swipeRefreshLayout.setVisibility(View.VISIBLE);
-                        }
-                    }, 300);
+            if (!HelperUtilities.isValidURL(imageUri.toString())) {
+                // upload image file
+                StorageReference storageReference2 = storageReference.child(System.currentTimeMillis() + "." + GetFileExtension(imageUri));
+                UploadTask uploadTask = storageReference2.putFile(imageUri);
+                uploadTask.addOnSuccessListener((OnSuccessListener) (taskSnapshot) -> {
+                    // get the image uri
+                    Task<Uri> downloadUri = storageReference2.getDownloadUrl();
+                    downloadUri.addOnSuccessListener((OnSuccessListener) (uri) ->{
+                        // construct img uri data
+                        jobPostImgVal = uri.toString();
+                    });
                 });
-            });
+            } else {
+                // not edited image
+                jobPostImgVal = imageUri.toString();
+            }
+
+            // set data for saving
+            jobAuthorVal = firebaseUser.getEmail();
+            jobPostPostedVal = HelperUtilities.getCurrentDate();
+            jobPostsData = new JobPosts(jobPostApproveVal, jobAuthorVal, jobPostImgVal, jobPostTitleVal, jobPostDescVal, jobPostPostedVal, jobPostExpVal,
+                    jobPostSalaryVal, jobPostCompanyVal, jobPostCompanyDetsVal, jobPostFieldsVal, jobPostProvinceVal, jobPostLinkVal);
+
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    dialog.dismiss();
+                    // editing Job post
+                    if (editJobPost != null && jp_action_btn.getText().equals("EDIT")) {
+                        HashMap<String, Object> hashMap = new HashMap<>();
+                        hashMap.put("approved", jobPostApproveVal);
+                        hashMap.put("jobPostTitle", jobPostTitleVal);
+                        hashMap.put("jobPostImg", jobPostImgVal);
+                        hashMap.put("jobPostDescription", jobPostDescVal);
+                        hashMap.put("jobPostPosted", jobPostPostedVal);
+                        hashMap.put("jobPostYearExp", jobPostExpVal);
+                        hashMap.put("jobPostSalary", jobPostSalaryVal);
+                        hashMap.put("jobPostCompany", jobPostCompanyVal);
+                        hashMap.put("jobPostCompanyDetails", jobPostCompanyDetsVal);
+                        hashMap.put("jobPostJobField", jobPostFieldsVal);
+                        hashMap.put("jobPostProvince", jobPostProvinceVal);
+                        hashMap.put("jobPostLink", jobPostLinkVal);
+                        crudJobPosts.update(editJobPost.getKey(), hashMap).addOnSuccessListener(suc -> {
+                            Toast.makeText(ManageJobsPostsActivity.this,
+                                    "Job post was edited successfully!", Toast.LENGTH_SHORT).show();
+                            resetFormInputs();
+
+                        }).addOnFailureListener(fail -> {
+                            Toast.makeText(ManageJobsPostsActivity.this,
+                                    "Editing failed, please try again.", Toast.LENGTH_LONG).show();
+                        });
+
+                        // adding or inserting job post
+                    } else {
+                        String jobPostSaveId = databaseReference.push().getKey();
+                        databaseReference.child(jobPostSaveId).setValue(jobPostsData)
+                        .addOnSuccessListener(suc -> {
+                            Toast.makeText(ManageJobsPostsActivity.this,
+                                    "Job Post was added successfully!", Toast.LENGTH_SHORT).show();
+                            resetFormInputs();
+
+                        }).addOnFailureListener(fail -> {
+                            Toast.makeText(ManageJobsPostsActivity.this,
+                                    "Adding failed, please try again.", Toast.LENGTH_LONG).show();
+                        });
+                    }
+                }
+            }, 300);
         }
     }
 
@@ -582,7 +605,7 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
     private void resetFormInputs() {
         // reset form input
         form_title.setText("Addding a Job Post");
-        jp_img_input.requestFocus();
+        jp_img_input.setImageResource(R.drawable.custom_input_field);
         jp_title_input.setText("");
         jp_desc_input.setText("");
         jp_exp_input.setText("");
@@ -591,6 +614,14 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
         jp_company_input.setText("");
         jp_company_dets_input.setText("");
         jp_action_btn.setText("ADD");
+
+        // show main btns
+        addNewBtn.setVisibility(View.VISIBLE);
+        backBtn.setVisibility(View.VISIBLE);
+
+        // hide form and show data
+        add_edit_form.setVisibility(View.GONE);
+        swipeRefreshLayout.setVisibility(View.VISIBLE);
     }
 
     private void isCancelAdding(String actionVal) {
@@ -605,12 +636,6 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             resetFormInputs();
-                            // show main btns
-                            addNewBtn.setVisibility(View.VISIBLE);
-                            backBtn.setVisibility(View.VISIBLE);
-                            // hide form and show rv
-                            add_edit_form.setVisibility(View.GONE);
-                            swipeRefreshLayout.setVisibility(View.VISIBLE);
                         }
                     }, 300);
                 }
@@ -635,10 +660,15 @@ public class ManageJobsPostsActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        intent = new Intent(new Intent(ManageJobsPostsActivity.this, HomeActivity.class));
-        intent.putExtra("isFromMngJobPostActivity", true);
-        startActivity(intent);
-        finish();
+        if (backBtn.getVisibility() == View.INVISIBLE) {
+            String actionVal = getActionValue();
+            isCancelAdding(actionVal);
+        } else {
+            super.onBackPressed();
+            intent = new Intent(new Intent(ManageJobsPostsActivity.this, HomeActivity.class));
+            intent.putExtra("isFromMngJobPostActivity", true);
+            startActivity(intent);
+            finish();
+        }
     }
 }
